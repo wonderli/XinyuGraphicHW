@@ -13,10 +13,14 @@ CPPFLAGS = -g -DDEBUG
 
 LIBRARIES =  $(COIN_LIBRARIES) -lCoin 
 
-OBJECT_FILES = OSUInventor.o sample_read_iv.o
-EXEC = sample_read_iv
+#OBJECT_FILES = OSUInventor.o sample_read_iv.o
+OBJECT_FILES = OSUInventor.o Lab1.o
+#EXEC = sample_read_iv
+EXEC = Lab1
 
 .C.o:
+	$(CPP) -c $(CPPFLAGS) $(INCLUDES) $<
+.cpp.o:
 	$(CPP) -c $(CPPFLAGS) $(INCLUDES) $<
 
 lab1: $(OBJECT_FILES)
