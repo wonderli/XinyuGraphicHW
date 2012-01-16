@@ -28,4 +28,4 @@ lab1: $(OBJECT_FILES)
         $(LDFLAGS) $(LIBRARIES)
 
 clean:
-	rm *.o $(EXEC)
+	rm *.o *~ $(EXEC)
