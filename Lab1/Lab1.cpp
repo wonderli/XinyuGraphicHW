@@ -14,7 +14,18 @@
 #include "OSUInventor.h"
 
 void usage_error();
-int main(int argc, char *argv[]) {
+int main(int argc, char **argv) {
+	if (argc != 2)
+		usage_error();
+	SoDB::init();
+	OSUInventorScene *scene = new OSUInventorScene(argv[1]);
+	/*Set up camera*/
+	SoCamera *camera = NULL;
+
+
+
+	return 0;
+
 
 }
 void usage_error() {
