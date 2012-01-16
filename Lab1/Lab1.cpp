@@ -1,6 +1,13 @@
+#ifdef LINUX
+#include <iostream>
+#include <vector>
+using namespace std;
+#else
 #include <iostream.h>
-#include <math.h>
 #include <vector.h>
+#endif
+
+#include <math.h>
 
 #include <Inventor/SbLinear.h>
 #include <Inventor/actions/SoGetMatrixAction.h>

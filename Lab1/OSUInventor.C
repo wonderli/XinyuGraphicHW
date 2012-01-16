@@ -2,8 +2,12 @@
 // Modified by Benjamin Schroeder, OSU
 
 // general includes
+#ifndef LINUX
 #include <ostream.h>
-
+#else
+#include <iostream>
+using namespace std;
+#endif
 // OpenInventor includes
 #include <Inventor/SoDB.h>
 #include <Inventor/SoInput.h>
