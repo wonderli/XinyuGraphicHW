@@ -22,6 +22,7 @@ using namespace std;
 #include "OSUInventor.h"
 #define PI 3.1415926536
 void usage_error();
+void set_object(OSUInventorScene *scene, SbMatrix *transform_list);
 int main(int argc, char **argv) {
 	if (argc != 4)
 		usage_error();
@@ -87,6 +88,32 @@ int main(int argc, char **argv) {
         //Initialize the ppm file
         fstream fp;
         fp.open(argv[2], fstream::out);
+        if(!fp.is_open()){
+                cerr << "Error in writing file" << argv[2] <<endl;
+                exit(0);
+        }
+        fp << "P3"<<endl;
+        fp << "#" << argv[2] <<endl;
+        fp << xres << ' ' << yres <<endl;
+        fp << "255" << endl;
+        //Finish initialize file
+        //Call shader for each pixel
+        int scanline, pixel;
+        SbVec3f current, ray;
+        float r, g, b;
+        //iterate
+        for(scanline = 0; scanline < yres; scanline++) {
+                current = scanline_start;
+
+                for (pixel = 0; pixel < xres; pixel++) {
+                        ray = current - eye;
+                        ray.normalize();
+//                        raytrace();
+
+                }
+        }
+
+
 
 
         
@@ -109,4 +136,7 @@ int main(int argc, char **argv) {
 void usage_error() {
 	cerr << "Usage: rt <input.iv> <output.ppm> <xres> <yres>" << endl;
 	exit(10);
+}
+void set_object(OSUInventorScene *scene, SbMatrix *transform_list) {
+
 }
