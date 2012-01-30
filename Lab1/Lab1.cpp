@@ -112,23 +112,6 @@ int main(int argc, char **argv) {
 
                 }
         }
-
-
-
-
-        
-
-
-
-
-
-
-
-
-
-
-
-
 	return 0;
 
 
@@ -138,5 +121,48 @@ void usage_error() {
 	exit(10);
 }
 void set_object(OSUInventorScene *scene, SbMatrix *transform_list) {
+        OSUObjectData *object = NULL;
+        int length;
+        SbMatrix T, S, R;
+        SoTransform *transformation = NULL;
+        SbVec3f scale_vector;
+        SbRotation rotation;
+        SbVec3f rotation_axis;
+        float rotation_angle;
+        SbVec3f translation_vector;
+        length = scene->Objects.getLength();
+        int i = 0;
+        if(!scene) {
+                cerr << "Scene is empty!" <<endl;
+                exit(0);
 
+        } 
+        if(!transform_list) {
+                cerr << "Tansform List not normal" << endl;
+                exit(0);
+        }
+        for (i = 0; i < length; i++){
+                object = (OSUObjectData *)scene->Objects[i];
+                transformation = object->transformation;
+                translation_vector = transformation->translation.getValue();
+                scale_vector = transformation->scaleFactor.getValue();
+                rotation = transformation->rotation.getValue();
+                rotation.getValue(rotation_axis, rotation_angle);
+
+                T.makeIdentity();
+                S.makeIdentity();
+                R.makeIdentity();
+
+                T.setTranslate(translation_vector);
+                S.setTranslate(scale_vector);
+                R.setRotate(rotation);
+
+                transform_list[i].makeIdentity();
+                transform_list[i].multRight(S);
+                transform_list[i].multRight(R);
+                transform_list[i].multRight(T);
+        }
 }
+
+
+
