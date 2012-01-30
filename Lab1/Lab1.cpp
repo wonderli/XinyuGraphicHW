@@ -1,6 +1,7 @@
 #ifdef LINUX
 #include <iostream>
 #include <vector>
+#include <fstream>
 using namespace std;
 #else
 #include <iostream.h>
@@ -22,7 +23,7 @@ using namespace std;
 #define PI 3.1415926536
 void usage_error();
 int main(int argc, char **argv) {
-	if (argc != 2)
+	if (argc != 4)
 		usage_error();
 	SoDB::init();
 	OSUInventorScene *scene = new OSUInventorScene(argv[1]);
@@ -48,7 +49,7 @@ int main(int argc, char **argv) {
         */
         if (scene->Camera == NULL) {
                 camera = new SoPerspectiveCamera();
-                camera_type = new SoPerspectiveCamera::getClassTypeId();
+                camera_type =  SoPerspectiveCamera::getClassTypeId();
         } else {
                 camera = scene->Camera;
                 camera_position = camera->position.getValue();
@@ -60,9 +61,40 @@ int main(int argc, char **argv) {
         }
         SbVec3f eye, COI,n, v, u;
         eye.setValue(camera_position[0], camera_position[1], camera_position[2]);
-        n = eye.normalize().negate(); // n setting
-        u = u.setValue(camera_view_up(cross(n).getValue)).normalize();
-        v = v.setValue(n.cross(u).getValue).normalize();
+        camera_direction.normalize();
+        n.setValue(camera_direction[0], camera_direction[1], camera_direction[2]);
+        n.negate(); // n setting
+        u.setValue(camera_view_up.cross(n).getValue());
+        u.normalize();
+        v.setValue(n.cross(u).getValue());
+        v.normalize();
+        /*Calculation Resolution*/
+        int yres = atoi(argv[3]);
+        int xres = (int)(yres*(camera->aspectRatio.getValue()));
+        int d = 1;//d is 1
+
+        float pixel_height;
+        float pixel_width;
+        
+        SbVec3f upperleft_corner, pixel_center, scanline_start;
+        if (camera_type == SoPerspectiveCamera::getClassTypeId()) {
+                pixel_height = 2 * tan(filed_view_angle/2) * d /yres; //Calculate H, pixel height H/Y
+                pixel_width = pixel_height * yres * camera_aspect_ratio / xres; // Calculate pixel width W/X
+        }
+        pixel_center = eye - n * d;
+        upperleft_corner = pixel_center - (xres/2) * pixel_width * u + (yres/2) * pixel_height *v;
+        scanline_start.setValue(pixel_center[0], pixel_center[1], pixel_center[2]);
+        //Initialize the ppm file
+        fstream fp;
+        fp.open(argv[2], fstream::out);
+
+
+        
+
+
+
+
+
 
 
 
