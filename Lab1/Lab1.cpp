@@ -42,10 +42,11 @@ int main(int argc, char **argv) {
         SbVec3f camera_rotation_axis;
         SbVec3f camera_direction;
         SbVec3f camera_view_up;
-        float filed_view_angle = PI/4; //45 degree
+        float height_angle = PI/4; //45 degree
         float camera_roation_angle;
         float camera_aspect_ratio = 1.0;
         SoType camera_type;
+        set_object(scene, transform_list);//set up object list
         /* 
         * If camera is not defined, use the following default:
         *         camera position = (0,0,1)
@@ -64,14 +65,21 @@ int main(int argc, char **argv) {
                 camera_orientation = camera->orientation.getValue();
                 camera_orientation.getValue(camera_rotation_axis, camera_roation_angle);
                 camera_aspect_ratio = camera->aspectRatio.getValue();
-                camera_orientation.multVec(SbVec3f(0, 0, -1), camera_direction);
-                camera_orientation.multVec(SbVec3f(0, 1, 0), camera_view_up);
+                camera_type = camera->getTypeId();
+                if (camera_type == SoPerspectiveCamera::getClassTypeId()) {
+                        SoPerspectiveCamera *perspective_camera = (SoPerspectiveCamera *)camera;
+                        height_angle = perspective_camera->heightAngle.getValue();
+                }
         }
+        camera_orientation.multVec(SbVec3f(0, 0, -1), camera_direction);
+        camera_orientation.multVec(SbVec3f(0, 1, 0), camera_view_up);
+
         SbVec3f eye, COI,n, v, u;
         eye.setValue(camera_position[0], camera_position[1], camera_position[2]);
         camera_direction.normalize();
         n.setValue(camera_direction[0], camera_direction[1], camera_direction[2]);
         n.negate(); // n setting
+        camera_view_up.normalize();
         u.setValue(camera_view_up.cross(n).getValue());
         u.normalize();
         v.setValue(n.cross(u).getValue());
@@ -86,17 +94,19 @@ int main(int argc, char **argv) {
         
         SbVec3f upperleft_corner, pixel_center, scanline_start;
         if (camera_type == SoPerspectiveCamera::getClassTypeId()) {
-                pixel_height = 2 * tan(filed_view_angle/2) * d /yres; //Calculate H, pixel height H/Y
+                pixel_height = 2 * tan(height_angle/2) * d /yres; //Calculate H, pixel height H/Y
                 pixel_width = pixel_height * yres * camera_aspect_ratio / xres; // Calculate pixel width W/X
         }
         pixel_center = eye - n * d;
         upperleft_corner = pixel_center - (xres/2) * pixel_width * u + (yres/2) * pixel_height *v;
+        //upperleft_corner = eye - n - (xres/2)*pixel_width*u + (yres/2)*pixel_height*v;
+        //pixel_center = upperleft_corner + pixel_width/2*u - pixel_height/2*v;
         //scanline_start.setValue(pixel_center[0], pixel_center[1], pixel_center[2]);
         SbVec3f current, ray;
         SbColor *color = new SbColor();
-        scanline_start = upperleft_corner - pixel_height *v;
+ //       scanline_start = upperleft_corner - pixel_height *v;
+        scanline_start.setValue(pixel_center[0], pixel_center[1], pixel_center[2]);
 
-        set_object(scene, transform_list);//set up object list
 
         //Initialize the ppm file
         fstream fp;
@@ -194,9 +204,9 @@ int sphere_intersect(SbVec3f ray, SbVec3f eye, SbSphere sphere, SbVec3f *point_i
         SbVec3f d = eye - sphere_center;
         int is_intersect = -1;
         a = 1;
-        b = 2 * d.dot(eye - sphere_center);
+        b = 2 * d.dot(ray);
         c = d.dot(eye - sphere_center) - r * r;
-        discriminant = b * b - 4*a*c;
+        discriminant = b * b - 4 * a * c;
         if(discriminant > ZERO) {
                 root_1 = (-b + sqrt(discriminant))/(2*a);
                 root_2 = (-b - sqrt(discriminant))/(2*a);
@@ -215,6 +225,7 @@ int sphere_intersect(SbVec3f ray, SbVec3f eye, SbSphere sphere, SbVec3f *point_i
         }
         else 
         is_intersect = -1;
+
         return is_intersect;
 }
 
@@ -229,8 +240,10 @@ void ray_trace(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMatrix *tran
         float distance_length;
         float distance_length_min;
         float radius;
-        OSUObjectData *object = new OSUObjectData();
-        OSUObjectData *closest_object = new OSUObjectData();
+        //OSUObjectData *object = new OSUObjectData();
+        //OSUObjectData *closest_object = new OSUObjectData();
+        OSUObjectData *object = new OSUObjectData;
+        OSUObjectData *closest_object = new OSUObjectData;
         float r, g, b;
         SoType shape_type;
         SbVec3f scale_vector;
@@ -269,8 +282,9 @@ void ray_trace(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMatrix *tran
                 z_component = normal[2];
                 if (z_component > 0 && z_component < 0.3){
                         z_component = 0.3;
-                }else if (z_component < 0)
+                }else if (z_component < 0){
                         z_component = 0;
+                }
                 r = closest_object->material->diffuseColor[0][0];
                 g = closest_object->material->diffuseColor[0][1];
                 b = closest_object->material->diffuseColor[0][2];
