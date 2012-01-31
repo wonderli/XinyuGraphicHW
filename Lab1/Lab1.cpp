@@ -28,10 +28,13 @@ void set_object(OSUInventorScene *scene, SbMatrix *transform_list);
 int sphere_intersect(SbVec3f ray, SbVec3f eye, SbSphere sphere, SbVec3f *point_intersect);
 void ray_trace(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMatrix *transform_list, SbColor *shadeColor);
 int main(int argc, char **argv) {
-	if (argc != 4)
+	if (argc < 5)
 		usage_error();
 	SoDB::init();
+        int length;
 	OSUInventorScene *scene = new OSUInventorScene(argv[1]);
+        length = scene->Objects.getLength();
+        SbMatrix *transform_list = new SbMatrix[length];
 	/*Set up camera*/
 	SoCamera *camera = NULL;
         SbVec3f camera_position(0,0,1); //inital camera_position
@@ -90,8 +93,10 @@ int main(int argc, char **argv) {
         upperleft_corner = pixel_center - (xres/2) * pixel_width * u + (yres/2) * pixel_height *v;
         //scanline_start.setValue(pixel_center[0], pixel_center[1], pixel_center[2]);
         SbVec3f current, ray;
-        SbColor shadeColor;
+        SbColor *color = new SbColor();
         scanline_start = upperleft_corner - pixel_height *v;
+
+        set_object(scene, transform_list);//set up object list
 
         //Initialize the ppm file
         fstream fp;
@@ -107,6 +112,7 @@ int main(int argc, char **argv) {
         //Finish initialize file
         //Call shader for each pixel
         int scanline, pixel;
+        float r, g, b;
 
        // float r, g, b;
         //iterate
@@ -116,12 +122,17 @@ int main(int argc, char **argv) {
                 for (pixel = 0; pixel < xres; pixel++) {
                         ray = current - eye;
                         ray.normalize();
-//                        raytrace();
-
+                        ray_trace(ray, eye, scene, transform_list, color);
+                        r = (*color)[0];
+                        g = (*color)[1];
+                        b = (*color)[2];
+                        fp << (int)r << ' ' << (int)g << ' ' <<(int)b <<endl;
+                        current += pixel_width*u;
                 }
+                scanline_start -= pixel_height*v;
         }
+        fp.close();
 	return 0;
-
 
 }
 void usage_error() {
@@ -207,22 +218,26 @@ int sphere_intersect(SbVec3f ray, SbVec3f eye, SbSphere sphere, SbVec3f *point_i
         return is_intersect;
 }
 
-void ray_trace(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMatrix *transform_list, SbColor *shadeColor) {
+void ray_trace(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMatrix *transform_list, SbColor *color) {
         int length = scene->Objects.getLength();
         int i;
-        SbVec3f center, center_new;
+        SbVec3f center(0, 0, 0);
+        SbVec3f center_new(0, 0, 0);
+        SbVec3f center_min(0, 0, 0);
         SbVec3f *point_intersect;
         SbVec3f distance;
-        SbVec3f center_min;
         float distance_length;
         float distance_length_min;
-//        sphere_center_new.setValue(0, 0, 0);
         float radius;
-        OSUObjectData *object =NULL;
+        OSUObjectData *object = new OSUObjectData();
+        OSUObjectData *closest_object = new OSUObjectData();
         float r, g, b;
         SoType shape_type;
         SbVec3f scale_vector;
+        SbVec3f point_on_sphere;
+        SbVec3f normal;
         int is_intersect = -1;
+        float z_component;
 
         for (i = 0; i < length; i++) {
                 object = (OSUObjectData *)scene->Objects[i];
@@ -240,7 +255,37 @@ void ray_trace(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMatrix *tran
                         } else
                         distance_length = FAR;
 
+                        if(distance_length < distance_length_min) {
+                                closest_object = object;
+                                distance_length_min = distance_length;
+                                point_on_sphere = *point_intersect;
+                                center_min = center_new;
+                        }
                 }
-
         }
+        if(distance_length_min < FAR) {
+                normal = point_on_sphere - center_min;
+                normal.normalize();
+                z_component = normal[2];
+                if (z_component > 0 && z_component < 0.3){
+                        z_component = 0.3;
+                }else if (z_component < 0)
+                        z_component = 0;
+                r = closest_object->material->diffuseColor[0][0];
+                g = closest_object->material->diffuseColor[0][1];
+                b = closest_object->material->diffuseColor[0][2];
+
+                r *= z_component;
+                g *= z_component;
+                b *= z_component;
+
+                r *= 255;
+                g *= 255;
+                b *= 255;
+        } else {
+                r = 0;
+                g = 0;
+                b = 0;
+        }
+        (*color).setValue(r, g, b);
 }
