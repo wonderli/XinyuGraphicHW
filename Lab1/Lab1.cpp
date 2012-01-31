@@ -21,7 +21,7 @@ using namespace std;
 
 #include "OSUInventor.h"
 #define PI 3.1415926536
-#define ZERO 1e-4
+#define ZERO 1e-6
 #define FAR 1e10
 void usage_error();
 void set_object(OSUInventorScene *scene, SbMatrix *transform_list);
@@ -97,10 +97,10 @@ int main(int argc, char **argv) {
                 pixel_height = 2 * tan(height_angle/2) * d /yres; //Calculate H, pixel height H/Y
                 pixel_width = pixel_height * yres * camera_aspect_ratio / xres; // Calculate pixel width W/X
         }
-        pixel_center = eye - n * d;
-        upperleft_corner = pixel_center - (xres/2) * pixel_width * u + (yres/2) * pixel_height *v;
-        //upperleft_corner = eye - n - (xres/2)*pixel_width*u + (yres/2)*pixel_height*v;
-        //pixel_center = upperleft_corner + pixel_width/2*u - pixel_height/2*v;
+//        pixel_center = eye - n * d;
+//        upperleft_corner = pixel_center - (xres/2) * pixel_width * u + (yres/2) * pixel_height *v;
+        upperleft_corner = eye - n - (xres/2)*pixel_width*u + (yres/2)*pixel_height*v;
+        pixel_center = upperleft_corner + pixel_width/2*u - pixel_height/2*v;
         //scanline_start.setValue(pixel_center[0], pixel_center[1], pixel_center[2]);
         SbVec3f current, ray;
         SbColor *color = new SbColor();
@@ -172,6 +172,10 @@ void set_object(OSUInventorScene *scene, SbMatrix *transform_list) {
         }
         for (i = 0; i < length; i++){
                 object = (OSUObjectData *)scene->Objects[i];
+                if(!object->Check()) {
+                        cerr << "Error in OSUObjectData for object" << i << endl;
+                        exit(0);
+                }
                 transformation = object->transformation;
                 translation_vector = transformation->translation.getValue();
                 scale_vector = transformation->scaleFactor.getValue();
@@ -205,11 +209,14 @@ int sphere_intersect(SbVec3f ray, SbVec3f eye, SbSphere sphere, SbVec3f *point_i
         int is_intersect = -1;
         a = 1;
         b = 2 * d.dot(ray);
-        c = d.dot(eye - sphere_center) - r * r;
+//        c = d.dot(eye - sphere_center) - r * r;
+        c = d.dot(d) - r * r;
         discriminant = b * b - 4 * a * c;
         if(discriminant > ZERO) {
-                root_1 = (-b + sqrt(discriminant))/(2*a);
-                root_2 = (-b - sqrt(discriminant))/(2*a);
+//                root_1 = (-b + sqrt(discriminant))/(2*a);
+//                root_2 = (-b - sqrt(discriminant))/(2*a);
+                root_1 = (-b - sqrt(discriminant))/(2*a);
+                root_2 = (-b + sqrt(discriminant))/(2*a);
                 if(root_1 > ZERO) {
                         root = root_1;
                         is_intersect = 1;
@@ -223,8 +230,9 @@ int sphere_intersect(SbVec3f ray, SbVec3f eye, SbSphere sphere, SbVec3f *point_i
                 else
                 is_intersect = -1;
         }
-        else 
-        is_intersect = -1;
+        else{
+                is_intersect = -1;
+        }
 
         return is_intersect;
 }
@@ -235,15 +243,16 @@ void ray_trace(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMatrix *tran
         SbVec3f center(0, 0, 0);
         SbVec3f center_new(0, 0, 0);
         SbVec3f center_min(0, 0, 0);
-        SbVec3f *point_intersect;
+        SbVec3f *point_intersect = new SbVec3f();
         SbVec3f distance;
         float distance_length;
-        float distance_length_min;
-        float radius;
-        //OSUObjectData *object = new OSUObjectData();
-        //OSUObjectData *closest_object = new OSUObjectData();
-        OSUObjectData *object = new OSUObjectData;
-        OSUObjectData *closest_object = new OSUObjectData;
+        float distance_length_min = FAR;
+        //float radius;
+        float radius = 1;
+        OSUObjectData *object = new OSUObjectData();
+        OSUObjectData *closest_object = new OSUObjectData();
+//        OSUObjectData *object = new OSUObjectData;
+//        OSUObjectData *closest_object = new OSUObjectData;
         float r, g, b;
         SoType shape_type;
         SbVec3f scale_vector;
@@ -255,6 +264,7 @@ void ray_trace(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMatrix *tran
         for (i = 0; i < length; i++) {
                 object = (OSUObjectData *)scene->Objects[i];
                 shape_type = object->shape->getTypeId(); //Get Object ID
+
                 if(shape_type == SoSphere::getClassTypeId()) {
                         center.setValue(0, 0, 0);
                         transform_list[i].multVecMatrix(center, center_new);
@@ -285,6 +295,7 @@ void ray_trace(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMatrix *tran
                 }else if (z_component < 0){
                         z_component = 0;
                 }
+
                 r = closest_object->material->diffuseColor[0][0];
                 g = closest_object->material->diffuseColor[0][1];
                 b = closest_object->material->diffuseColor[0][2];
