@@ -22,9 +22,11 @@ using namespace std;
 #include "OSUInventor.h"
 #define PI 3.1415926536
 #define ZERO 1e-4
+#define FAR 1e10
 void usage_error();
 void set_object(OSUInventorScene *scene, SbMatrix *transform_list);
 int sphere_intersect(SbVec3f ray, SbVec3f eye, SbSphere sphere, SbVec3f *point_intersect);
+void ray_trace(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMatrix *transform_list, SbColor *shadeColor);
 int main(int argc, char **argv) {
 	if (argc != 4)
 		usage_error();
@@ -205,3 +207,40 @@ int sphere_intersect(SbVec3f ray, SbVec3f eye, SbSphere sphere, SbVec3f *point_i
         return is_intersect;
 }
 
+void ray_trace(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMatrix *transform_list, SbColor *shadeColor) {
+        int length = scene->Objects.getLength();
+        int i;
+        SbVec3f center, center_new;
+        SbVec3f *point_intersect;
+        SbVec3f distance;
+        SbVec3f center_min;
+        float distance_length;
+        float distance_length_min;
+//        sphere_center_new.setValue(0, 0, 0);
+        float radius;
+        OSUObjectData *object =NULL;
+        float r, g, b;
+        SoType shape_type;
+        SbVec3f scale_vector;
+        int is_intersect = -1;
+
+        for (i = 0; i < length; i++) {
+                object = (OSUObjectData *)scene->Objects[i];
+                shape_type = object->shape->getTypeId(); //Get Object ID
+                if(shape_type == SoSphere::getClassTypeId()) {
+                        center.setValue(0, 0, 0);
+                        transform_list[i].multVecMatrix(center, center_new);
+                        scale_vector = object->transformation->scaleFactor.getValue();
+                        radius = scale_vector[0];
+                        SbSphere *sphere = new SbSphere(center_new, radius);
+                        is_intersect = sphere_intersect(ray, eye,*sphere, point_intersect);
+                        if(is_intersect == 1) {
+                                distance = eye - *point_intersect;
+                                distance_length = distance.length();
+                        } else
+                        distance_length = FAR;
+
+                }
+
+        }
+}
