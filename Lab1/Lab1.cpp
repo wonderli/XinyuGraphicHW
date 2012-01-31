@@ -86,7 +86,8 @@ int main(int argc, char **argv) {
         v.normalize();
         /*Calculation Resolution*/
         int yres = atoi(argv[3]);
-        int xres = (int)(yres*(camera->aspectRatio.getValue()));
+        int xres = atoi(argv[4]);
+        //int xres = (int)(yres*(camera->aspectRatio.getValue()));
         int d = 1;//d is 1
 
         float pixel_height;
@@ -188,7 +189,7 @@ void set_object(OSUInventorScene *scene, SbMatrix *transform_list) {
                 R.makeIdentity();
 
                 T.setTranslate(translation_vector);
-                S.setTranslate(scale_vector);
+                S.setScale(scale_vector);
                 R.setRotate(rotation);
 
                 transform_list[i].makeIdentity();
