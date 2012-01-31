@@ -23,6 +23,7 @@ using namespace std;
 #define PI 3.1415926536
 void usage_error();
 void set_object(OSUInventorScene *scene, SbMatrix *transform_list);
+int sphere_intersect(SbVec3f ray, SbVec3f eye, SbSphere sphere, SbVec3f *point_intersect);
 int main(int argc, char **argv) {
 	if (argc != 4)
 		usage_error();
@@ -84,7 +85,11 @@ int main(int argc, char **argv) {
         }
         pixel_center = eye - n * d;
         upperleft_corner = pixel_center - (xres/2) * pixel_width * u + (yres/2) * pixel_height *v;
-        scanline_start.setValue(pixel_center[0], pixel_center[1], pixel_center[2]);
+        //scanline_start.setValue(pixel_center[0], pixel_center[1], pixel_center[2]);
+        SbVec3f current, ray;
+        SbColor shadeColor;
+        scanline_start = upperleft_corner - pixel_height *v;
+
         //Initialize the ppm file
         fstream fp;
         fp.open(argv[2], fstream::out);
@@ -99,8 +104,8 @@ int main(int argc, char **argv) {
         //Finish initialize file
         //Call shader for each pixel
         int scanline, pixel;
-        SbVec3f current, ray;
-        float r, g, b;
+
+       // float r, g, b;
         //iterate
         for(scanline = 0; scanline < yres; scanline++) {
                 current = scanline_start;
@@ -165,4 +170,37 @@ void set_object(OSUInventorScene *scene, SbMatrix *transform_list) {
 }
 
 
+
+int sphere_intersect(SbVec3f ray, SbVec3f eye, SbSphere sphere, SbVec3f *point_intersect) {
+        float r = sphere.getRadius();
+        SbVec3f sphere_center = sphere.getCenter();
+        float a, b, c, discriminant;
+        float root_1, root_2;
+        float root;
+        SbVec3f d = eye - sphere_center;
+        int ret = -1;
+        a = 1;
+        b = 2 * d.dot(eye - sphere_center);
+        c = d.dot(eye - sphere_center) - r * r;
+        discriminant = b * b - 4*a*c;
+        if(discriminant > 1e-5) {
+                root_1 = (-b + sqrt(discriminant))/(2*a);
+                root_2 = (-b - sqrt(discriminant))/(2*a);
+                if(root_1 > 1e-5) {
+                        root = root_1;
+                        ret = 1;
+                        *point_intersect = eye + ray * root;
+                }
+                else if(root_2 > 1e-5) {
+                        root = root_2;
+                        ret = 1;
+                        *point_intersect = eye + ray * root;
+                }
+                else
+                ret = -1;
+        }
+        else 
+        ret = -1;
+        return ret;
+}
 
