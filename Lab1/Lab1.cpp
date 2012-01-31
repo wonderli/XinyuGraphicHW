@@ -21,6 +21,7 @@ using namespace std;
 
 #include "OSUInventor.h"
 #define PI 3.1415926536
+#define ZERO 1e-4
 void usage_error();
 void set_object(OSUInventorScene *scene, SbMatrix *transform_list);
 int sphere_intersect(SbVec3f ray, SbVec3f eye, SbSphere sphere, SbVec3f *point_intersect);
@@ -178,29 +179,29 @@ int sphere_intersect(SbVec3f ray, SbVec3f eye, SbSphere sphere, SbVec3f *point_i
         float root_1, root_2;
         float root;
         SbVec3f d = eye - sphere_center;
-        int ret = -1;
+        int is_intersect = -1;
         a = 1;
         b = 2 * d.dot(eye - sphere_center);
         c = d.dot(eye - sphere_center) - r * r;
         discriminant = b * b - 4*a*c;
-        if(discriminant > 1e-5) {
+        if(discriminant > ZERO) {
                 root_1 = (-b + sqrt(discriminant))/(2*a);
                 root_2 = (-b - sqrt(discriminant))/(2*a);
-                if(root_1 > 1e-5) {
+                if(root_1 > ZERO) {
                         root = root_1;
-                        ret = 1;
+                        is_intersect = 1;
                         *point_intersect = eye + ray * root;
                 }
-                else if(root_2 > 1e-5) {
+                else if(root_2 > ZERO) {
                         root = root_2;
-                        ret = 1;
+                        is_intersect = 1;
                         *point_intersect = eye + ray * root;
                 }
                 else
-                ret = -1;
+                is_intersect = -1;
         }
         else 
-        ret = -1;
-        return ret;
+        is_intersect = -1;
+        return is_intersect;
 }
 
