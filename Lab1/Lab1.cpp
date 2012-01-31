@@ -171,6 +171,7 @@ void set_object(OSUInventorScene *scene, SbMatrix *transform_list) {
                 exit(0);
         }
         for (i = 0; i < length; i++){
+                //OSUObjectData *object = (OSUObjectData *)scene->Objects[i];
                 object = (OSUObjectData *)scene->Objects[i];
                 if(!object->Check()) {
                         cerr << "Error in OSUObjectData for object" << i << endl;
