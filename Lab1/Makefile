@@ -19,13 +19,13 @@ OBJECT_FILES = OSUInventor.o Lab1.o
 EXEC = rt
 
 .C.o:
-	$(CPP) -c $(CPPFLAGS) $(INCLUDES) $<
+	$(CPP) -c -g $(CPPFLAGS) $(INCLUDES) $<
 .cpp.o:
-	$(CPP) -c $(CPPFLAGS) $(INCLUDES) $<
+	$(CPP) -c -g $(CPPFLAGS) $(INCLUDES) $<
 
 lab1: $(OBJECT_FILES)
 	$(CPP) -o $(EXEC) $(CPPFLAGS) $(OBJECT_FILES) \
         $(LDFLAGS) $(LIBRARIES)
 
 clean:
-	rm *.o *~ $(EXEC)
+	rm *.o *~ *.ppm $(EXEC)
