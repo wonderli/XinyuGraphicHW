@@ -17,8 +17,8 @@ OBJECT_FILES = OSUInventor.o Lab1.o
 #EXEC = sample_read_iv
 EXEC = rt
 
-#.C.o:
-#	$(CPP) -c -g $(CPPFLAGS) $(INCLUDES) $<
+.C.o:
+	$(CPP) -c -g $(CPPFLAGS) $(INCLUDES) $<
 .cpp.o:
 	$(CPP) -c -g $(CPPFLAGS) $(INCLUDES) $<
 
