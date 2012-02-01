@@ -23,7 +23,7 @@ EXEC = rt
 .cpp.o:
 	$(CPP) -c $(CPPFLAGS) $(INCLUDES) $<
 
-Lab1: $(OBJECT_FILES)
+lab1: $(OBJECT_FILES)
 	$(CPP) -o $(EXEC) $(CPPFLAGS) $(OBJECT_FILES) \
         $(LDFLAGS) $(LIBRARIES)
 
