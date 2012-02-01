@@ -16,7 +16,7 @@ OBJECT_FILES = OSUInventor.o Lab1.o
 EXEC = rt
 
 .C.o:
-	$(CPP) -c -g $(CPPFLAGS) $(INCLUDES) $<
+	$(CPP) -c  $(CPPFLAGS) $(INCLUDES) $<
 
 lab1: $(OBJECT_FILES)
 	$(CPP) -o $(EXEC) $(CPPFLAGS) $(OBJECT_FILES) \
