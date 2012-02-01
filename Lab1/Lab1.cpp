@@ -98,15 +98,15 @@ int main(int argc, char **argv) {
                 pixel_height = 2 * tan(height_angle/2) * d /yres; //Calculate H, pixel height H/Y
                 pixel_width = pixel_height * yres * camera_aspect_ratio / xres; // Calculate pixel width W/X
         }
-//        pixel_center = eye - n * d;
-//        upperleft_corner = pixel_center - (xres/2) * pixel_width * u + (yres/2) * pixel_height *v;
-        upperleft_corner = eye - n - (xres/2)*pixel_width*u + (yres/2)*pixel_height*v;
-        pixel_center = upperleft_corner + pixel_width/2*u - pixel_height/2*v;
-        //scanline_start.setValue(pixel_center[0], pixel_center[1], pixel_center[2]);
+        pixel_center = eye - n * d;
+        upperleft_corner = pixel_center - (xres/2) * pixel_width * u + (yres/2) * pixel_height *v;
+//        upperleft_corner = eye - n - (xres/2)*pixel_width*u + (yres/2)*pixel_height*v;
+//        pixel_center = upperleft_corner + pixel_width/2*u - pixel_height/2*v;
         SbVec3f current, ray;
         SbColor *color = new SbColor();
  //       scanline_start = upperleft_corner - pixel_height *v;
-        scanline_start.setValue(pixel_center[0], pixel_center[1], pixel_center[2]);
+        //scanline_start.setValue(pixel_center[0], pixel_center[1], pixel_center[2]);
+        scanline_start.setValue(upperleft_corner[0], upperleft_corner[1], upperleft_corner[2]);
 
 
         //Initialize the ppm file
@@ -207,18 +207,38 @@ int sphere_intersect(SbVec3f ray, SbVec3f eye, SbSphere sphere, SbVec3f *point_i
         float a, b, c, discriminant;
         float root_1, root_2;
         float root;
-        SbVec3f d = eye - sphere_center;
+//        SbVec3f d = eye - sphere_center;
         int is_intersect = -1;
-        a = 1;
-        b = 2 * d.dot(ray);
+//        a = 1;
+//        b = 2 * d.dot(ray);
 //        c = d.dot(eye - sphere_center) - r * r;
-        c = d.dot(d) - r * r;
+//        c = d.dot(d) - r * r;
+        SbVec3f d = ray;
+       // d.normalize();
+        SbVec3f eye_minus_center = eye - sphere_center;
+
+        a = d.dot(d);
+        b = 2 * d.dot(eye - sphere_center);
+        c = eye_minus_center.dot(eye_minus_center) - r * r;
         discriminant = b * b - 4 * a * c;
         if(discriminant > ZERO) {
-//                root_1 = (-b + sqrt(discriminant))/(2*a);
-//                root_2 = (-b - sqrt(discriminant))/(2*a);
                 root_1 = (-b - sqrt(discriminant))/(2*a);
                 root_2 = (-b + sqrt(discriminant))/(2*a);
+//                if((root_1 > ZERO) && (root_2 > ZERO)) {
+//                        if (root_1 < root_2) {
+//                                root = root_1;
+//                                is_intersect = 1;
+//                                *point_intersect = eye + ray * root;
+//                        } else {
+//                                root = root_2;
+//                                is_intersect = 1;
+//                                *point_intersect = eye + ray * root;
+//                        } 
+//     
+//                } else {
+//                        is_intersect = -1;
+//                }
+//        }
                 if(root_1 > ZERO) {
                         root = root_1;
                         is_intersect = 1;
@@ -249,12 +269,9 @@ void ray_trace(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMatrix *tran
         SbVec3f distance;
         float distance_length;
         float distance_length_min = FAR;
-        //float radius;
         float radius = 1;
         OSUObjectData *object = new OSUObjectData();
         OSUObjectData *closest_object = new OSUObjectData();
-//        OSUObjectData *object = new OSUObjectData;
-//        OSUObjectData *closest_object = new OSUObjectData;
         float r, g, b;
         SoType shape_type;
         SbVec3f scale_vector;
