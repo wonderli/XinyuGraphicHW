@@ -6,6 +6,7 @@ using namespace std;
 #else
 #include <iostream.h>
 #include <vector.h>
+#include <fstream.h>
 #endif
 
 #include <math.h>
