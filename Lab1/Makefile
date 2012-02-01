@@ -1,7 +1,7 @@
 # sample makefile using Coin3D library
 
-#COIN_DIRECTORY = /usr/local/Coin3d
-COIN_DIRECTORY = /opt/local
+COIN_DIRECTORY = /usr/local/Coin3d
+#COIN_DIRECTORY = /opt/local
 COIN_INCLUDE = -I$(COIN_DIRECTORY)/include
 COIN_LIBRARIES = -L$(COIN_DIRECTORY)/lib
 
@@ -23,7 +23,7 @@ EXEC = rt
 .cpp.o:
 	$(CPP) -c -g $(CPPFLAGS) $(INCLUDES) $<
 
-lab1: $(OBJECT_FILES)
+Lab1: $(OBJECT_FILES)
 	$(CPP) -o $(EXEC) $(CPPFLAGS) $(OBJECT_FILES) \
         $(LDFLAGS) $(LIBRARIES)
 
