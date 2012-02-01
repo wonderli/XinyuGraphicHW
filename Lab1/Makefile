@@ -1,7 +1,6 @@
 # sample makefile using Coin3D library
 
 COIN_DIRECTORY = /usr/local/Coin3d
-#COIN_DIRECTORY = /opt/local
 COIN_INCLUDE = -I$(COIN_DIRECTORY)/include
 COIN_LIBRARIES = -L$(COIN_DIRECTORY)/lib
 
@@ -14,7 +13,6 @@ CPPFLAGS = -g -DDEBUG
 LIBRARIES =  $(COIN_LIBRARIES) -lCoin 
 
 OBJECT_FILES = OSUInventor.o Lab1.o
-#EXEC = sample_read_iv
 EXEC = rt
 
 .C.o:
