@@ -1,0 +1,5 @@
+How to compile this program:
+run:
+	make
+How to run this program:
+	./rt <input.iv> <output.ppm> <yres> <xres>
