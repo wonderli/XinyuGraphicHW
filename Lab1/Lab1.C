@@ -86,8 +86,18 @@ int main(int argc, char **argv) {
         v.setValue(n.cross(u).getValue());
         v.normalize();
         /*Calculation Resolution*/
-        int yres = atoi(argv[3]);
-        int xres = atoi(argv[4]);
+       // int yres = atoi(argv[3]);
+       // int xres = atoi(argv[4]);
+        int xres = atoi(argv[3]);
+        int yres = atoi(argv[4]);
+        if(xres != (int)(yres*(camera->aspectRatio.getValue()))) {
+                cout << "yres and xres value should follow the aspect ratio" << endl;
+                yres = xres/(camera->aspectRatio.getValue());
+                cout << "Now the yres value is " << yres << endl;
+        }
+
+
+        //int xres = (int)(yres*(camera->aspectRatio.getValue()));
         //int xres = (int)(yres*(camera->aspectRatio.getValue()));
         int d = 1;//d is 1
 
