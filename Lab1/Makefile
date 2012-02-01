@@ -19,8 +19,6 @@ EXEC = rt
 
 .C.o:
 	$(CPP) -c -g $(CPPFLAGS) $(INCLUDES) $<
-.cpp.o:
-	$(CPP) -c -g $(CPPFLAGS) $(INCLUDES) $<
 
 Lab1: $(OBJECT_FILES)
 	$(CPP) -o $(EXEC) $(CPPFLAGS) $(OBJECT_FILES) \
