@@ -394,4 +394,5 @@ void ray_trace(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMatrix *tran
                 b = 0;
         }
         (*color).setValue(r, g, b);
+
 }
