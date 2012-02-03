@@ -19,6 +19,8 @@ using namespace std;
 #include <Inventor/nodes/SoCube.h>
 #include <Inventor/nodes/SoLight.h>
 #include <Inventor/nodes/SoPointLight.h>
+#include <Inventor/nodes/SoSpotLight.h>
+#include <Inventor/nodes/SoDirectionalLight.h>
 
 #include "OSUInventor.h"
 #define PI 3.1415926536
@@ -349,6 +351,19 @@ void ray_trace(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMatrix *tran
         int is_intersect = -1;
         float z_component;
 
+        /* Light */
+        SoLight *light = NULL;
+        SoType light_type; 
+        SbVec3f light_color(1,1,1);
+        SbVec3f ambient_color(0,0,0);
+        SbVec3f diffuse_color(0,0,0);
+        SbVec3f specular_color(0,0,0);        
+        float Kd;//diffuse coefficient
+        float light_intensity = 1;
+        SbVec3f light_location;
+        SbVec3f light_vector;
+        SbVec3f light_direction;
+
         int i;
         for (i = 0; i < length; i++) {
                 object = (OSUObjectData *)scene->Objects[i];
@@ -377,17 +392,92 @@ void ray_trace(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMatrix *tran
                 }
         }
         if(distance_length_min < FAR) {
+                
+
                 normal = point_on_sphere - center_min;
                 normal.normalize();
+                for(i = 0; i < length; i++) {
+                        light = (SoLight*) scene->Lights[i];
+                        float ka = 0.2;
+                        if(light->on.getValue() == false) continue;
+                        else {
+                                light_type = light->getTypeId();
+                                if(light_type == SoPointLight::getClassTypeId()) {
+
+                                        SoPointLight *point_light = (SoPointLight *)light;
+                                        light_location = point_light->location.getValue();
+                                        light_vector = light_location - point_on_sphere;
+                                        light_vector.normalize();
+                                        light_intensity = point_light->intensity.getValue();
+                                        light_color = point_light->color.getValue();
+
+                                        Kd = normal.dot(light_vector);
+                                        if(Kd < ZERO) continue;
+
+                                } else if(light_type == SoSpotLight::getClassTypeId()) {
+                                        SoSpotLight *spot_light = (SoSpotLight *) light;
+
+                                        light_location = spot_light->location.getValue();
+                                        light_direction = spot_light->direction.getValue();
+                                        light_direction.normalize();
+                                        light_direction.negate();
+                                        float cutoff_angle = spot_light->cutOffAngle.getValue();
+                                        float dropoff_rate = spot_light->dropOffRate.getValue();
+                                        light_vector = light_location - point_on_sphere;
+                                        light_vector.normalize();
+                                        
+                                        float angle = acos(light_vector.dot(light_direction));
+                                        if((angle > (cutoff_angle)/2.0 )||(normal.dot(light_vector) < ZERO)) continue;
+
+                                        
+                                        
+                                        light_intensity = spot_light->intensity.getValue();
+                                        light_color = spot_light->color.getValue();
+
+                                        Kd = normal.dot(light_vector);
+
+
+                                } else if (light_type == SoDirectionalLight::getClassTypeId()) {
+                                        SoDirectionalLight *direction_light = (SoDirectionalLight *) light;
+                                        light_vector = direction_light->direction.getValue();
+                                        light_vector.normalize();
+                                        Kd = normal.dot(light_vector);
+                                        light_intensity = direction_light->intensity.getValue();
+                                        light_color = direction_light->color.getValue();
+
+                                        if(Kd < ZERO) continue;
+
+
+
+                                        
+
+                                }
+
+                        }
+                }
                 z_component = normal[2];
                 if (z_component > 0 && z_component < 0.3){
                         z_component = 0.3;
                 }else if (z_component < 0){
                         z_component = 0;
                 }
+                /*
                 r = closest_object->material->diffuseColor[0][0] * z_component * 255;
                 g = closest_object->material->diffuseColor[0][1] * z_component * 255;
                 b = closest_object->material->diffuseColor[0][2] * z_component * 255;
+                */
+                r = closest_object->material->diffuseColor[0][0];
+                g = closest_object->material->diffuseColor[0][1];
+                b = closest_object->material->diffuseColor[0][2];
+
+                r *= z_component;
+                g *= z_component;
+                b *= z_component;
+
+                r *= 255;
+                g *= 255;
+                b *= 255;
+
         } else {
                 r = 0;
                 g = 0;

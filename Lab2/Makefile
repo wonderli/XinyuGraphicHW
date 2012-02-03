@@ -12,7 +12,7 @@ CPPFLAGS = -g -DDEBUG
 
 LIBRARIES =  $(COIN_LIBRARIES) -lCoin 
 
-OBJECT_FILES = OSUInventor.o Lab1.o
+OBJECT_FILES = OSUInventor.o Lab2.o
 EXEC = rt
 
 .C.o:
