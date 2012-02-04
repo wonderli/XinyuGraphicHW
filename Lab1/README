@@ -1,0 +1,9 @@
+How to compile this program:
+run:
+	make
+How to run this program:
+	./rt <input.iv> <output.ppm> <yres> <xres>
+        You can also run the script:
+                ./script_stdsun.sh
+        It will generate the sphere1.ppm, sphere2.ppm, mickeyspheres.ppm  sphereTower.ppm as xres 500, yres 500
+
