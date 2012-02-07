@@ -16,7 +16,7 @@ CPPFLAGS = -g -DDEBUG -DLINUX
 LIBRARIES =  $(COIN_LIBRARIES) -lCoin 
 
 #OBJECT_FILES = OSUInventor.o sample_read_iv.o
-OBJECT_FILES = OSUInventor.o MyScene.o Lab2.o
+OBJECT_FILES = OSUInventor.o MyScene.o MyRayTracer.o Lab2.o
 #EXEC = sample_read_iv
 EXEC = rt
 
