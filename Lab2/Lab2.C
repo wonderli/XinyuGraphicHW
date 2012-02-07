@@ -22,7 +22,11 @@ using namespace std;
 #include <Inventor/nodes/SoSpotLight.h>
 #include <Inventor/nodes/SoDirectionalLight.h>
 
+#ifndef OSU_H
+#define OSU_H
 #include "OSUInventor.h"
+#endif
+#include "MyScene.h"
 #define PI 3.1415926536
 #define ZERO 1e-6
 #define FAR 1e10
@@ -36,67 +40,6 @@ using namespace std;
 void usage_error() {
 	cerr << "Usage: rt <input.iv> <output.ppm> <xres> <yres>" << endl;
 	exit(10);
-}
-/*
-* Name: set_object
-* Argument: 
-*               scene: OSUInventorScene 
-*               transforam_list: Transform matrix list, which contains every object
-* Usage: Get the object transformation information, and store these in the transform_list
-*/
-void set_object(OSUInventorScene *scene, SbMatrix *transform_list) {
-        OSUObjectData *object = NULL;
-        int length;
-
-        SbMatrix T, S, R;
-
-        SoTransform *transformation = NULL;
-        SbVec3f scale_vector;
-        SbRotation rotation;
-        SbVec3f rotation_axis;
-        float rotation_angle;
-        SbVec3f translation_vector;
-
-        length = scene->Objects.getLength();
-
-        if(!scene) {
-                cerr << "Scene is empty!" <<endl;
-                exit(0);
-
-        } 
-        if(!transform_list) {
-                cerr << "Tansform List error" << endl;
-                exit(0);
-        }
-
-        int i = 0;
-        for (i = 0; i < length; i++) {
-                //OSUObjectData *object = (OSUObjectData *)scene->Objects[i];
-                object = (OSUObjectData *)scene->Objects[i];
-                if(!object->Check()) {
-                        cerr << "Error in OSUObjectData for object" << i << endl;
-                        exit(0);
-                }
-
-                transformation = object->transformation;
-                translation_vector = transformation->translation.getValue();
-                scale_vector = transformation->scaleFactor.getValue();
-                rotation = transformation->rotation.getValue();
-                rotation.getValue(rotation_axis, rotation_angle);
-
-                T.makeIdentity();
-                S.makeIdentity();
-                R.makeIdentity();
-
-                T.setTranslate(translation_vector);
-                S.setScale(scale_vector);
-                R.setRotate(rotation);
-
-                transform_list[i].makeIdentity();
-                transform_list[i].multRight(S);
-                transform_list[i].multRight(R);
-                transform_list[i].multRight(T);
-        }
 }
 /* 
 * Name: sphere_intersect
@@ -129,38 +72,21 @@ int sphere_intersect(SbVec3f ray, SbVec3f eye, SbSphere sphere, SbVec3f *point_i
         if(discriminant > ZERO) {
                 root_1 = (-b - sqrt(discriminant))/(2*a);
                 root_2 = (-b + sqrt(discriminant))/(2*a);
-//                if((root_1 > ZERO) && (root_2 > ZERO)) {
-//                        if (root_1 < root_2) {
-//                                root = root_1;
-//                                is_intersect = 1;
-//                                *point_intersect = eye + ray * root;
-//                        } else {
-//                                root = root_2;
-//                                is_intersect = 1;
-//                                *point_intersect = eye + ray * root;
-//                        } 
-//     
-//                } else {
-//                        is_intersect = -1;
-//                }
-//        }
-                if(root_1 > ZERO) {
-                        root = root_1;
-                        is_intersect = 1;
-                        *point_intersect = eye + ray * root;
-                }
-                else if(root_2 > ZERO) {
-                        root = root_2;
-                        is_intersect = 1;
-                        *point_intersect = eye + ray * root;
-                }
-                else
-                is_intersect = -1;
+               if((root_1 > ZERO) && (root_2 > ZERO)) {
+                       if (root_1 < root_2) {
+                               root = root_1;
+                               is_intersect = 1;
+                               *point_intersect = eye + ray * root;
+                       } else {
+                               root = root_2;
+                               is_intersect = 1;
+                               *point_intersect = eye + ray * root;
+                       } 
+    
+               } else {
+                       is_intersect = -1;
+               }
         }
-        else{
-                is_intersect = -1;
-        }
-
         return is_intersect;
 }
 
@@ -250,65 +176,65 @@ void ray_trace(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMatrix *tran
 
                 normal = point_on_sphere - center_min;
                 normal.normalize();
-                for(i = 0; i < length; i++) {
-                        light = (SoLight*) scene->Lights[i];
-                        float ka = 0.2;
-                        if(light->on.getValue() == false) continue;
-                        else {
-                                light_type = light->getTypeId();
-                                if(light_type == SoPointLight::getClassTypeId()) {
-
-                                        SoPointLight *point_light = (SoPointLight *)light;
-                                        light_location = point_light->location.getValue();
-                                        light_vector = light_location - point_on_sphere;
-                                        light_vector.normalize();
-                                        light_intensity = point_light->intensity.getValue();
-                                        light_color = point_light->color.getValue();
-
-                                        Kd = normal.dot(light_vector);
-                                        if(Kd < ZERO) continue;
-
-                                } else if(light_type == SoSpotLight::getClassTypeId()) {
-                                        SoSpotLight *spot_light = (SoSpotLight *) light;
-
-                                        light_location = spot_light->location.getValue();
-                                        light_direction = spot_light->direction.getValue();
-                                        light_direction.normalize();
-                                        light_direction.negate();
-                                        float cutoff_angle = spot_light->cutOffAngle.getValue();
-                                        float dropoff_rate = spot_light->dropOffRate.getValue();
-                                        light_vector = light_location - point_on_sphere;
-                                        light_vector.normalize();
-                                        
-                                        float angle = acos(light_vector.dot(light_direction));
-                                        if((angle > (cutoff_angle)/2.0 )||(normal.dot(light_vector) < ZERO)) continue;
-
-                                        
-                                        
-                                        light_intensity = spot_light->intensity.getValue();
-                                        light_color = spot_light->color.getValue();
-
-                                        Kd = normal.dot(light_vector);
-
-
-                                } else if (light_type == SoDirectionalLight::getClassTypeId()) {
-                                        SoDirectionalLight *direction_light = (SoDirectionalLight *) light;
-                                        light_vector = direction_light->direction.getValue();
-                                        light_vector.normalize();
-                                        Kd = normal.dot(light_vector);
-                                        light_intensity = direction_light->intensity.getValue();
-                                        light_color = direction_light->color.getValue();
-
-                                        if(Kd < ZERO) continue;
-
-
-
-                                        
-
-                                }
-
-                        }
-                }
+//                for(i = 0; i < length; i++) {
+//                        light = (SoLight*) scene->Lights[i];
+//                        float ka = 0.2;
+//                        if(light->on.getValue() == false) continue;
+//                        else {
+//                                light_type = light->getTypeId();
+//                                if(light_type == SoPointLight::getClassTypeId()) {
+//
+//                                        SoPointLight *point_light = (SoPointLight *)light;
+//                                        light_location = point_light->location.getValue();
+//                                        light_vector = light_location - point_on_sphere;
+//                                        light_vector.normalize();
+//                                        light_intensity = point_light->intensity.getValue();
+//                                        light_color = point_light->color.getValue();
+//
+//                                        Kd = normal.dot(light_vector);
+//                                        if(Kd < ZERO) continue;
+//
+//                                } else if(light_type == SoSpotLight::getClassTypeId()) {
+//                                        SoSpotLight *spot_light = (SoSpotLight *) light;
+//
+//                                        light_location = spot_light->location.getValue();
+//                                        light_direction = spot_light->direction.getValue();
+//                                        light_direction.normalize();
+//                                        light_direction.negate();
+//                                        float cutoff_angle = spot_light->cutOffAngle.getValue();
+//                                        float dropoff_rate = spot_light->dropOffRate.getValue();
+//                                        light_vector = light_location - point_on_sphere;
+//                                        light_vector.normalize();
+//                                        
+//                                        float angle = acos(light_vector.dot(light_direction));
+//                                        if((angle > (cutoff_angle)/2.0 )||(normal.dot(light_vector) < ZERO)) continue;
+//
+//                                        
+//                                        
+//                                        light_intensity = spot_light->intensity.getValue();
+//                                        light_color = spot_light->color.getValue();
+//
+//                                        Kd = normal.dot(light_vector);
+//
+//
+//                                } else if (light_type == SoDirectionalLight::getClassTypeId()) {
+//                                        SoDirectionalLight *direction_light = (SoDirectionalLight *) light;
+//                                        light_vector = direction_light->direction.getValue();
+//                                        light_vector.normalize();
+//                                        Kd = normal.dot(light_vector);
+//                                        light_intensity = direction_light->intensity.getValue();
+//                                        light_color = direction_light->color.getValue();
+//
+//                                        if(Kd < ZERO) continue;
+//
+//
+//
+//                                        
+//
+//                                }
+//
+//                        }
+//                }
                 z_component = normal[2];
                 if (z_component > 0 && z_component < 0.3){
                         z_component = 0.3;
@@ -346,8 +272,11 @@ int main(int argc, char **argv) {
 	SoDB::init();
         int length;
 	OSUInventorScene *scene = new OSUInventorScene(argv[1]);
-        length = scene->Objects.getLength();
-        SbMatrix *transform_list = new SbMatrix[length];
+//        length = scene->Objects.getLength();
+//        SbMatrix *transform_list = new SbMatrix[length];
+	MyScene *my_scene = new MyScene(scene);
+        SbMatrix *transform_list = my_scene->set_object();
+
 	/* Set up camera */
 	SoCamera *camera = NULL;
         SbVec3f camera_position(0,0,1); //inital camera_position
@@ -359,7 +288,7 @@ int main(int argc, char **argv) {
         float camera_roation_angle;
         float camera_aspect_ratio = 1.0;
         SoType camera_type;
-        set_object(scene, transform_list);//set up object list
+//        set_object(scene, transform_list);//set up object list
         /* 
         * If camera is not defined, use the following default:
         *         camera position = (0,0,1)

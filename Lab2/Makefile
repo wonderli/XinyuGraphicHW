@@ -12,15 +12,18 @@ CPPFLAGS = -g -DDEBUG
 
 LIBRARIES =  $(COIN_LIBRARIES) -lCoin 
 
-OBJECT_FILES = OSUInventor.o Lab2.o
+OBJECT_FILES =  MyScene.o OSUInventor.o Lab2.o 
 EXEC = rt
+
+.cpp.o:
+	$(CPP) -c  $(CPPFLAGS) $(INCLUDES) $<
 
 .C.o:
 	$(CPP) -c  $(CPPFLAGS) $(INCLUDES) $<
 
-lab1: $(OBJECT_FILES)
+lab2: $(OBJECT_FILES)
 	$(CPP) -o $(EXEC) $(CPPFLAGS) $(OBJECT_FILES) \
         $(LDFLAGS) $(LIBRARIES)
 
 clean:
-	rm *.o *~ *.ppm $(EXEC)
+	rm *.o *~ *.ppm *.gch $(EXEC)

@@ -16,7 +16,7 @@ CPPFLAGS = -g -DDEBUG -DLINUX
 LIBRARIES =  $(COIN_LIBRARIES) -lCoin 
 
 #OBJECT_FILES = OSUInventor.o sample_read_iv.o
-OBJECT_FILES = OSUInventor.o Lab2.o
+OBJECT_FILES = OSUInventor.o MyScene.o Lab2.o
 #EXEC = sample_read_iv
 EXEC = rt
 
@@ -25,7 +25,7 @@ EXEC = rt
 .cpp.o:
 	$(CPP) -c  $(CPPFLAGS) $(INCLUDES) $<
 
-Lab1: $(OBJECT_FILES)
+Lab2: $(OBJECT_FILES)
 	$(CPP) -o $(EXEC) $(CPPFLAGS) $(OBJECT_FILES) \
         $(LDFLAGS) $(LIBRARIES)
 
