@@ -26,4 +26,4 @@ lab2: $(OBJECT_FILES)
         $(LDFLAGS) $(LIBRARIES)
 
 clean:
-	rm *.o *~ *.ppm *.gch $(EXEC)
+	rm *.o *~ *.ppm  $(EXEC)
