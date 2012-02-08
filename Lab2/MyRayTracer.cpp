@@ -124,6 +124,7 @@ SbVec3f* MyRayTracer::rt(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMa
         float new_color0 = 0;
         float new_color1 = 0;        
         float new_color2 = 0;
+	int min_index = 0;
         for (i = 0; i < length; i++) {
                 object = (OSUObjectData *)scene->Objects[i];
                 shape_type = object->shape->getTypeId();
@@ -144,6 +145,7 @@ SbVec3f* MyRayTracer::rt(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMa
                                 distance_length_min = distance_length;
                                 point_on_sphere = *point_intersect;
                                 center_min = center_new;
+				min_index = i;
                         }
                 }
         }
@@ -163,17 +165,19 @@ if(distance_length_min < FAR) {
                                 light_intensity = point_light->intensity.getValue();                                
                                 light_color = point_light->color.getValue();                                
                         }
+			light_vector = point_on_sphere - light_location; 
                         light_vector.normalize();
 //                        normal.negate();
                         float N_dot_L = normal.dot(light_vector);
                         SbVec3f V = ray;
                         V.normalize();
+			V.negate();
                         float V_dot_N = V.dot(normal);
                         R = (-2) * V_dot_N * normal + V;
 //                        R = 2 * V_dot_N * normal - V;
                         R.normalize();
                         float V_dot_R = V.dot(R);
-                        object = (OSUObjectData *)scene->Objects[i];
+                        object = (OSUObjectData *)scene->Objects[min_index];
 
                         float ambient_color0 = object->material->ambientColor[0][0];
                         float ambient_color1 = object->material->ambientColor[0][1];
@@ -197,9 +201,11 @@ if(distance_length_min < FAR) {
                         color0 = light_intensity * light_color[0] * ambient_color[0] + N_dot_L * diffuse_color[0] * light_intensity * light_color[0] + pow(V_dot_R, 20) * specular_color[0] * light_intensity * light_color[0];
                         color1 = light_intensity * light_color[1] * ambient_color[1] + N_dot_L * diffuse_color[1] * light_intensity * light_color[1] + pow(V_dot_R, 20) *specular_color[1] * light_intensity * light_color[1];
                         color2 = light_intensity * light_color[2] * ambient_color[2] + N_dot_L * diffuse_color[2] * light_intensity * light_color[2] + pow(V_dot_R, 20) *specular_color[2] * light_intensity * light_color[2];
+
                         new_color0 = color0 + old_color0;
                         new_color1 = color1 + old_color1;
                         new_color2 = color2 + old_color2;
+
                         old_color0 = color0;
                         old_color1 = color1;
                         old_color2 = color2;
@@ -219,7 +225,11 @@ if(distance_length_min < FAR) {
               new_color1 = 0;
               new_color2 = 0;
       }                
-//                    (*color).setValue(new_color0, new_color1, new_color2);
+	if(new_color0 > 255) new_color0 = 255;
+	if(new_color1 > 255) new_color1 = 255;
+	if(new_color2 > 255) new_color2 = 255;
+
+                    //(*color).setValue(new_color0, new_color1, new_color2);
                     (*color).setValue(new_color0*255, new_color1*255, new_color2*255);
 
 return color;
