@@ -190,10 +190,7 @@ SbVec3f* MyRayTracer::rt(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMa
                                 V.normalize();
                                 V.negate();
                                 float V_dot_N = V.dot(normal);
-//                                R = (-2) * N_dot_L * normal + V;
                                 R = 2 * N_dot_L * normal - light_vector;
-                                //R = (-2) * V_dot_N * normal + V;
-                                //                        R = 2 * V_dot_N * normal - V;
                                 R.normalize();
                                 float V_dot_R = V.dot(R);
                                 object = (OSUObjectData *)scene->Objects[min_index];
@@ -202,100 +199,61 @@ SbVec3f* MyRayTracer::rt(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMa
                                 float ambient_color1 = object->material->ambientColor[0][1];
                                 float ambient_color2 = object->material->ambientColor[0][2];
                                 ambient_color.setValue(ambient_color0, ambient_color1, ambient_color2);
-                                is_inshadow = is_in_shadow(light_vector, light_location, scene, transform_list);                             
-
-                                if(is_inshadow == 1)
+                                if (V_dot_N < 0)
                                 {
+//                                        ambient_color.setValue(0, 0, 0);
                                         diffuse_color.setValue(0, 0, 0);
                                         specular_color.setValue(0, 0, 0);
-                                }
-                                else if(is_inshadow == -1)
+
+                                }else 
                                 {
-//                                        diffuse_color.setValue(0, 0, 0);
-//                                        specular_color.setValue(0, 0, 0);
+                                        is_inshadow = is_in_shadow(point_on_sphere, light_vector,  light_location, scene, transform_list);                             
 
-                                        float diffuse_color0 = object->material->diffuseColor[0][0];
-                                        float diffuse_color1 = object->material->diffuseColor[0][1];
-                                        float diffuse_color2 = object->material->diffuseColor[0][2];
-                                        diffuse_color.setValue(diffuse_color0, diffuse_color1, diffuse_color2);
+                                        if(is_inshadow == 1)
+                                        {
+                                                diffuse_color.setValue(0, 0, 0);
+                                                specular_color.setValue(0, 0, 0);
+                                        }
+                                        else if(is_inshadow == -1)
+                                        {
 
-                                        float specular_color0 = object->material->specularColor[0][0];
-                                        float specular_color1 = object->material->specularColor[0][1];
-                                        float specular_color2 = object->material->specularColor[0][2];
-                                        specular_color.setValue(specular_color0, specular_color1, specular_color2);
+                                                float diffuse_color0 = object->material->diffuseColor[0][0];
+                                                float diffuse_color1 = object->material->diffuseColor[0][1];
+                                                float diffuse_color2 = object->material->diffuseColor[0][2];
+                                                diffuse_color.setValue(diffuse_color0, diffuse_color1, diffuse_color2);
+
+                                                float specular_color0 = object->material->specularColor[0][0];
+                                                float specular_color1 = object->material->specularColor[0][1];
+                                                float specular_color2 = object->material->specularColor[0][2];
+                                                specular_color.setValue(specular_color0, specular_color1, specular_color2);
+
+                                        }
+                                        if(old_color0 < 0) old_color0 = 0;
+                                        if(old_color1 < 0) old_color1 = 0;
+                                        if(old_color2 < 0) old_color2 = 0;
+                                        color0 = light_intensity * light_color[0] * ambient_color[0] + N_dot_L * diffuse_color[0] * light_intensity * light_color[0] + pow(V_dot_R, 20) * specular_color[0] * light_intensity * light_color[0];
+                                        color1 = light_intensity * light_color[1] * ambient_color[1] + N_dot_L * diffuse_color[1] * light_intensity * light_color[1] + pow(V_dot_R, 20) *specular_color[1] * light_intensity * light_color[1];
+                                        color2 = light_intensity * light_color[2] * ambient_color[2] + N_dot_L * diffuse_color[2] * light_intensity * light_color[2] + pow(V_dot_R, 20) *specular_color[2] * light_intensity * light_color[2];
+
+                                        new_color0 = color0 + old_color0;
+                                        new_color1 = color1 + old_color1;
+                                        new_color2 = color2 + old_color2;
+
+                                        old_color0 = color0;
+                                        old_color1 = color1;
+                                        old_color2 = color2;
+                                        #ifdef DEBUG_LI
+                                        //                                cout<<"COLOR  " << new_color0*255 << " " << new_color1*255 << " " << new_color2*255 <<endl;
+                                        #endif
+
 
                                 }
-                                if(old_color0 < 0) old_color0 = 0;
-                                if(old_color1 < 0) old_color1 = 0;
-                                if(old_color2 < 0) old_color2 = 0;
-                                color0 = light_intensity * light_color[0] * ambient_color[0] + N_dot_L * diffuse_color[0] * light_intensity * light_color[0] + pow(V_dot_R, 20) * specular_color[0] * light_intensity * light_color[0];
-                                color1 = light_intensity * light_color[1] * ambient_color[1] + N_dot_L * diffuse_color[1] * light_intensity * light_color[1] + pow(V_dot_R, 20) *specular_color[1] * light_intensity * light_color[1];
-                                color2 = light_intensity * light_color[2] * ambient_color[2] + N_dot_L * diffuse_color[2] * light_intensity * light_color[2] + pow(V_dot_R, 20) *specular_color[2] * light_intensity * light_color[2];
-
-                                new_color0 = color0 + old_color0;
-                                new_color1 = color1 + old_color1;
-                                new_color2 = color2 + old_color2;
-        
-                                old_color0 = color0;
-                                old_color1 = color1;
-                                old_color2 = color2;
-                                #ifdef DEBUG_LI
-//                                cout<<"COLOR  " << new_color0*255 << " " << new_color1*255 << " " << new_color2*255 <<endl;
-                                #endif
-
-
-      
-                                //                        normal.negate();
-//                                float N_dot_L = normal.dot(light_vector);
-//                                SbVec3f V = ray;
-//                                V.normalize();
-//                                V.negate();
-//                                float V_dot_N = V.dot(normal);
-//                                R = (-2) * V_dot_N * normal + V;
-//                                //                        R = 2 * V_dot_N * normal - V;
-//                                R.normalize();
-//                                float V_dot_R = V.dot(R);
-//                                object = (OSUObjectData *)scene->Objects[min_index];
-//
-//                                float ambient_color0 = object->material->ambientColor[0][0];
-//                                float ambient_color1 = object->material->ambientColor[0][1];
-//                                float ambient_color2 = object->material->ambientColor[0][2];
-//                                ambient_color.setValue(ambient_color0, ambient_color1, ambient_color2);
-
-//                                float diffuse_color0 = object->material->diffuseColor[0][0];
-//                                float diffuse_color1 = object->material->diffuseColor[0][1];
-//                                float diffuse_color2 = object->material->diffuseColor[0][2];
-//                                diffuse_color.setValue(diffuse_color0, diffuse_color1, diffuse_color2);
-//
-//                                float specular_color0 = object->material->specularColor[0][0];
-//                                float specular_color1 = object->material->specularColor[0][1];
-//                                float specular_color2 = object->material->specularColor[0][2];
-//                                specular_color.setValue(specular_color0, specular_color1, specular_color2);
-//
-//                                //   C = light_intensity*light_color*ambientColor+ (N.L)*diffuseColor*light_intensity*light_color + pow((V.R),20)*specularColor*light_intensity*light_color
-//                                if(old_color0 < 0) old_color0 = 0;
-//                                if(old_color1 < 0) old_color1 = 0;
-//                                if(old_color2 < 0) old_color2 = 0;
-//                                color0 = light_intensity * light_color[0] * ambient_color[0] + N_dot_L * diffuse_color[0] * light_intensity * light_color[0] + pow(V_dot_R, 20) * specular_color[0] * light_intensity * light_color[0];
-//                                color1 = light_intensity * light_color[1] * ambient_color[1] + N_dot_L * diffuse_color[1] * light_intensity * light_color[1] + pow(V_dot_R, 20) *specular_color[1] * light_intensity * light_color[1];
-//                                color2 = light_intensity * light_color[2] * ambient_color[2] + N_dot_L * diffuse_color[2] * light_intensity * light_color[2] + pow(V_dot_R, 20) *specular_color[2] * light_intensity * light_color[2];
-//
-//                                new_color0 = color0 + old_color0;
-//                                new_color1 = color1 + old_color1;
-//                                new_color2 = color2 + old_color2;
-//        
-//                                old_color0 = color0;
-//                                old_color1 = color1;
-//                                old_color2 = color2;
-//                                cout<<"COLOR  " << new_color0*255 << " " << new_color1*255 << " " << new_color2*255 <<endl;
-
-                }
-                else 
+                }else 
                 continue;
-                }
-//                if(new_color0 < 0) new_color0 = 0;
-//                if(new_color1 < 0) new_color1 = 0;
-//                if(new_color2 < 0) new_color2 = 0;
+        }
+        //                if(new_color0 < 0) new_color0 = 0;
+        //                if(new_color1 < 0) new_color1 = 0;
+        //                if(new_color2 < 0) new_color2 = 0;
 
               }
               else
@@ -312,14 +270,14 @@ SbVec3f* MyRayTracer::rt(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMa
               else if(new_color2 < 0) new_color2 = 0;
 
 //                    (*color).setValue(new_color0, new_color1, new_color2);
-                    (*color).setValue(new_color0*255, new_color1*255, new_color2*255);
+(*color).setValue(new_color0*255, new_color1*255, new_color2*255);
 
 return color;
 }
 
 
 
-int MyRayTracer::is_in_shadow(SbVec3f light, SbVec3f source, OSUInventorScene *scene, SbMatrix *transform_list)
+int MyRayTracer::is_in_shadow(SbVec3f intersect_point, SbVec3f light, SbVec3f source, OSUInventorScene *scene, SbMatrix *transform_list)
 {
         int in_shadow = -1;
         int i = 0;
@@ -332,6 +290,8 @@ int MyRayTracer::is_in_shadow(SbVec3f light, SbVec3f source, OSUInventorScene *s
         SbVec3f center_min(0, 0, 0);
         SbVec3f scale_vector;
         float radius = 0;
+        SbVec3f P = intersect_point + EPSLON * light;
+        SbVec3f Ray = source - P;
 
         int is_intersect = -1;
         for (i = 0; i < length; i++)
@@ -345,7 +305,7 @@ int MyRayTracer::is_in_shadow(SbVec3f light, SbVec3f source, OSUInventorScene *s
                         scale_vector = object->transformation->scaleFactor.getValue();
                         radius = scale_vector[0];
                         SbSphere *sphere = new SbSphere(center_new, radius);
-                        is_intersect = this->sphere_intersect(light, source, *sphere, point_intersect);
+                        is_intersect = this->sphere_intersect(Ray, source, *sphere, point_intersect);
                         if(is_intersect == 1) 
                         {
                                 in_shadow == 1;

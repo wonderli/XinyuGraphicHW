@@ -22,7 +22,7 @@ using namespace std;
 #define PI 3.1415926536
 #define ZERO 1e-6
 #define FAR 1e10
-#define EPSLON 0.0001
+#define EPSLON 1e-4
 class MyRayTracer{
         public:
 //        int length;
@@ -65,6 +65,6 @@ class MyRayTracer{
         int sphere_intersect(SbVec3f ray, SbVec3f eye, SbSphere sphere, SbVec3f *point_intersect);
         SbVec3f* rt(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMatrix *transform_list, SbVec3f *color);
 
-	int is_in_shadow(SbVec3f light, SbVec3f source, OSUInventorScene *scene, SbMatrix *transform_list);
+	int is_in_shadow(SbVec3f intersect_point, SbVec3f light, SbVec3f light_location, OSUInventorScene *scene, SbMatrix *transform_list);
 };
 
