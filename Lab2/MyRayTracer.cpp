@@ -167,6 +167,7 @@ if(distance_length_min < FAR) {
                         }
 			light_vector = point_on_sphere - light_location; 
                         light_vector.normalize();
+                        light_vector.negate();
 //                        normal.negate();
                         float N_dot_L = normal.dot(light_vector);
                         SbVec3f V = ray;
