@@ -192,6 +192,7 @@ void MyRayTracer::rt(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMatrix
                                 light_vector.normalize();
                                 reflection_ray = (-2) * light_vector.dot(normal) * normal + light_vector;
                                 light_vector.negate();
+                                //reflection_ray = (-2) * light_vector.dot(normal) * normal + light_vector;
                                 float N_dot_L = normal.dot(light_vector);
                                 SbVec3f V = ray;
                                 V.normalize();
