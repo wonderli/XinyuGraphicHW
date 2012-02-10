@@ -221,7 +221,6 @@ void MyRayTracer::rt(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMatrix
 
                                         if(is_inshadow == 1)
                                         {
-//                                                ambient_color.setValue(0, 0, 0);
                                                 diffuse_color.setValue(0, 0, 0);
                                                 specular_color.setValue(0, 0, 0);
                                         }
