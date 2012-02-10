@@ -190,7 +190,7 @@ void MyRayTracer::rt(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMatrix
                                 }
                                 light_vector = point_on_sphere - light_location; 
                                 light_vector.normalize();
-                                reflection_ray = (-2) * light_vector.dot(normal) * normal + light_vector;
+                                SbVec3f reflect_light_vector = light_vector;
                                 light_vector.negate();
                                 //reflection_ray = (-2) * light_vector.dot(normal) * normal + light_vector;
                                 float N_dot_L = normal.dot(light_vector);
@@ -221,6 +221,7 @@ void MyRayTracer::rt(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMatrix
 
                                         if(is_inshadow == 1)
                                         {
+//                                                ambient_color.setValue(0, 0, 0);
                                                 diffuse_color.setValue(0, 0, 0);
                                                 specular_color.setValue(0, 0, 0);
                                         }
@@ -260,6 +261,9 @@ void MyRayTracer::rt(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMatrix
 //                                                        color1 = color1 * shininess_factor;
 //                                                        color2 = color2 * shininess_factor;
 //                                                        color->setValue(color0, color1, color2);
+                                                                                                                
+                                                        reflection_ray = (-2) * ray.dot(normal) * normal + ray;
+                                                        //reflection_ray = 2 * N_dot_L * normal - light_vector;                
                                                         SbVec3f reflection_ray_normal = reflection_ray;
                                                         reflection_ray_normal.normalize();
                                                         SbVec3f *reflection_color = new SbVec3f(0, 0, 0);
@@ -268,7 +272,6 @@ void MyRayTracer::rt(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMatrix
                                                         float reflection_color1 = 0;
                                                         float reflection_color2 = 0;
                                                         reflection_color->getValue(reflection_color0, reflection_color1, reflection_color2);
-//                                                        shininess_factor = 0.5;
                                                         color0 = color0 + shininess_factor * reflection_color0;
                                                         color1 = color1 + shininess_factor * reflection_color1;
                                                         color2 = color2 + shininess_factor * reflection_color2;
@@ -298,8 +301,9 @@ void MyRayTracer::rt(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMatrix
 
 
 
-int MyRayTracer::is_in_shadow(SbVec3f intersect_point, SbVec3f light, SbVec3f source, OSUInventorScene *scene, SbMatrix *transform_list)
+int MyRayTracer::is_in_shadow(SbVec3f intersect_point, SbVec3f light_vector, SbVec3f light_location, OSUInventorScene *scene, SbMatrix *transform_list)
 {
+
         int in_shadow = -1;
         int i = 0;
         int length = scene->Objects.getLength();
@@ -311,13 +315,15 @@ int MyRayTracer::is_in_shadow(SbVec3f intersect_point, SbVec3f light, SbVec3f so
         SbVec3f center_min(0, 0, 0);
         SbVec3f scale_vector;
         float radius = 0;
-        light.normalize();
-        light.negate();
-        SbVec3f P = intersect_point + EPSLON * light;
-        SbVec3f Ray = source - P;
+        light_vector.normalize();
+        light_vector.negate();
+        SbVec3f P = intersect_point + EPSLON * light_vector;
+        SbVec3f Ray = light_location - P;
+        Ray.normalize();
 
 
         int is_intersect = -1;
+
         for (i = 0; i < length; i++)
         {
                 object = (OSUObjectData *)scene->Objects[i];
@@ -332,21 +338,20 @@ int MyRayTracer::is_in_shadow(SbVec3f intersect_point, SbVec3f light, SbVec3f so
                         SbVec3f normal = P - center_new;
                         normal.normalize();
                         float angle = normal.dot(Ray);
-                       if(acos(angle) > 90 || acos(angle) < 0)
-//                        if(angle < 0)
-                        {
-                                in_shadow = 1;
-                                break;
-                        }
-                        else
-                        {
+//                        if((acos(angle)*180/PI) > 90 || acos(angle) < 0)
+//                        {
+//                                in_shadow = 1;
+//                                break;
+//                        }
+//                        else
+//                        {
                                 is_intersect = this->sphere_intersect(Ray, P, *sphere, point_intersect);
                                 if(is_intersect == 1) 
                                 {
                                         in_shadow = 1;
                                         break;
                                 }
-                        }
+//                        }
                 }
         }
 
