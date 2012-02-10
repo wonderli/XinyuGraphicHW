@@ -83,7 +83,7 @@ int MyRayTracer::sphere_intersect(SbVec3f ray, SbVec3f eye, SbSphere sphere, SbV
 *
 *
 */
-SbVec3f* MyRayTracer::rt(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMatrix *transform_list, SbVec3f *color)
+void MyRayTracer::rt(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMatrix *transform_list, SbVec3f *color, int recursion_depth)
 {
 
         int i = 0;
@@ -122,13 +122,19 @@ SbVec3f* MyRayTracer::rt(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMa
         float color0 = 0;
         float color1 = 0 ;
         float color2 = 0;
-        float old_color0 = 0;
-        float old_color1 = 0;        
-        float old_color2 = 0;
-        float new_color0 = 0;
-        float new_color1 = 0;        
-        float new_color2 = 0;
+//        if(recursion_depth > 0)
+//        {
+//        color->getValue(color0, color1, color2);
+//        }
+//        cout<<"THE COLOR IS " << color0 << " " << color1 << " " << color2 <<endl;
 	int min_index = 0;
+        float shininess_factor = 0;
+        SbVec3f reflection_ray(0, 0, 0);
+//        SbVec3f *reflect_color = NULL;
+        float reflection_color0 = 0;
+        float reflection_color1 = 0;
+        float reflection_color2 = 0;
+
         for (i = 0; i < length; i++)
         {
                 object = (OSUObjectData *)scene->Objects[i];
@@ -185,6 +191,7 @@ SbVec3f* MyRayTracer::rt(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMa
                                 light_vector = point_on_sphere - light_location; 
                                 light_vector.normalize();
                                 light_vector.negate();
+                                reflection_ray = (-2) * light_vector.dot(normal) * normal + light_vector;
                                 float N_dot_L = normal.dot(light_vector);
                                 SbVec3f V = ray;
                                 V.normalize();
@@ -194,11 +201,13 @@ SbVec3f* MyRayTracer::rt(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMa
                                 R.normalize();
                                 float V_dot_R = V.dot(R);
                                 object = (OSUObjectData *)scene->Objects[min_index];
+                                shininess_factor = object->material->shininess[0];
 
                                 float ambient_color0 = object->material->ambientColor[0][0];
                                 float ambient_color1 = object->material->ambientColor[0][1];
                                 float ambient_color2 = object->material->ambientColor[0][2];
                                 ambient_color.setValue(ambient_color0, ambient_color1, ambient_color2);
+                                /* Compute reflective Ray*/
                                 if (N_dot_L < 0)
                                 {
                                         ambient_color.setValue(0, 0, 0);
@@ -211,7 +220,7 @@ SbVec3f* MyRayTracer::rt(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMa
 
                                         if(is_inshadow == 1)
                                         {
-                                                diffuse_color.setValue(0, 0, 0);
+                                                diffuse_color.setValue(0.1, 0.1, 0.1);
                                                 specular_color.setValue(0, 0, 0);
                                         }
                                         else if(is_inshadow == -1)
@@ -226,53 +235,63 @@ SbVec3f* MyRayTracer::rt(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMa
                                                 float specular_color1 = object->material->specularColor[0][1];
                                                 float specular_color2 = object->material->specularColor[0][2];
                                                 specular_color.setValue(specular_color0, specular_color1, specular_color2);
+//                                                diffuse_color.setValue(0, 0, 0);
+//                                                specular_color.setValue(0, 0, 0);
 
                                         }
-                                        if(old_color0 < 0) old_color0 = 0;
-                                        if(old_color1 < 0) old_color1 = 0;
-                                        if(old_color2 < 0) old_color2 = 0;
-                                        color0 = light_intensity * light_color[0] * ambient_color[0] + N_dot_L * diffuse_color[0] * light_intensity * light_color[0] + pow(V_dot_R, 20) * specular_color[0] * light_intensity * light_color[0];
-                                        color1 = light_intensity * light_color[1] * ambient_color[1] + N_dot_L * diffuse_color[1] * light_intensity * light_color[1] + pow(V_dot_R, 20) *specular_color[1] * light_intensity * light_color[1];
-                                        color2 = light_intensity * light_color[2] * ambient_color[2] + N_dot_L * diffuse_color[2] * light_intensity * light_color[2] + pow(V_dot_R, 20) *specular_color[2] * light_intensity * light_color[2];
-
-                                        new_color0 = color0 + old_color0;
-                                        new_color1 = color1 + old_color1;
-                                        new_color2 = color2 + old_color2;
-
-                                        old_color0 = color0;
-                                        old_color1 = color1;
-                                        old_color2 = color2;
-                                        #ifdef DEBUG_LI
-                                        //                                cout<<"COLOR  " << new_color0*255 << " " << new_color1*255 << " " << new_color2*255 <<endl;
-                                        #endif
-
-
                                 }
+                                              color0 += light_intensity * light_color[0] * ambient_color[0] + N_dot_L * diffuse_color[0] * light_intensity * light_color[0] + pow(V_dot_R, 20) * specular_color[0] * light_intensity * light_color[0];
+                                        color1 += light_intensity * light_color[1] * ambient_color[1] + N_dot_L * diffuse_color[1] * light_intensity * light_color[1] + pow(V_dot_R, 20) *specular_color[1] * light_intensity * light_color[1];
+                                        color2 += light_intensity * light_color[2] * ambient_color[2] + N_dot_L * diffuse_color[2] * light_intensity * light_color[2] + pow(V_dot_R, 20) *specular_color[2] * light_intensity * light_color[2];
+
+//                                              color0 += light_intensity * light_color[0] * ambient_color[0] + N_dot_L * diffuse_color[0] * light_intensity * light_color[0] * ambient_color[0] + pow(V_dot_R, 20) * specular_color[0] * light_intensity * light_color[0];
+//                                        color1 += light_intensity * light_color[1] * ambient_color[1] + N_dot_L * diffuse_color[1] * light_intensity * light_color[1] * ambient_color[1] + pow(V_dot_R, 20) *specular_color[1] * light_intensity * light_color[1];
+//                                        color2 += light_intensity * light_color[2] * ambient_color[2] + N_dot_L * diffuse_color[2] * light_intensity * light_color[2] * ambient_color[2] + pow(V_dot_R, 20) *specular_color[2] * light_intensity * light_color[2];
+//
+
+
+
+                                        if(recursion_depth < MAXRECURSION)
+                                        {
+                                                if(shininess_factor > 0) 
+                                                {       
+                        //                                                        color0 = color0 * shininess_factor;
+//                                                        color1 = color1 * shininess_factor;
+//                                                        color2 = color2 * shininess_factor;
+//                                                        color->setValue(color0, color1, color2);
+                                                        SbVec3f reflection_ray_normal = reflection_ray;
+                                                        reflection_ray_normal.normalize();
+                                                        SbVec3f *reflection_color = new SbVec3f(0, 0, 0);
+                                                        this->rt(reflection_ray_normal, point_on_sphere + EPSLON * reflection_ray_normal, scene, transform_list, reflection_color, recursion_depth + 1);
+                                                        float reflection_color0 = 0;
+                                                        float reflection_color1 = 0;
+                                                        float reflection_color2 = 0;
+                                                        reflection_color->getValue(reflection_color0, reflection_color1, reflection_color2);
+                                                        color0 = color0 + shininess_factor * reflection_color0;
+                                                        color1 = color1 + shininess_factor * reflection_color1;
+                                                        color2 = color2 + shininess_factor * reflection_color2;
+                                                }
+
+                                        }
+
+
+
+
                 }else 
                 continue;
+
         }
-        //                if(new_color0 < 0) new_color0 = 0;
-        //                if(new_color1 < 0) new_color1 = 0;
-        //                if(new_color2 < 0) new_color2 = 0;
 
               }
               else
               {
-                      new_color0 = 0;
-                      new_color1 = 0;
-                      new_color2 = 0;
+                        color0 = 0;
+                        color1 = 0;
+                        color2 = 0;
               }                
-              if(new_color0 > 255) new_color0 = 255;
-              else if (new_color0 < 0) new_color0 = 0;
-              if(new_color1 > 255) new_color1 = 255;
-              else if (new_color1 < 0) new_color1 = 0;
-              if(new_color2 > 255) new_color2 = 255;
-              else if(new_color2 < 0) new_color2 = 0;
 
-//                    (*color).setValue(new_color0, new_color1, new_color2);
-(*color).setValue(new_color0*255, new_color1*255, new_color2*255);
+                (*color).setValue(color0, color1, color2);
 
-return color;
 }
 
 

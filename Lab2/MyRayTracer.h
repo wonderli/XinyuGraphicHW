@@ -22,29 +22,10 @@ using namespace std;
 #define PI 3.1415926536
 #define ZERO 1e-6
 #define FAR 1e10
-#define EPSLON 1e-4
+#define EPSLON 1e-3
+#define MAXRECURSION 3
 class MyRayTracer{
         public:
-//        int length;
-//        SbVec3f center;
-//        SbVec3f center_new;
-//        SbVec3f center_min;
-//        SbVec3f *point_intersect;
-//        SbVec3f distance;
-//        float distance_length;
-//        float distance_length_min;
-//        float radius;
-//        OSUObjectData *object;
-//        OSUObjectData *closest_object;
-
-
-//        float r, g, b;
-//        SoType shape_type;
-//        SbVec3f scale_vector;
-//        SbVec3f point_on_sphere;
-//        SbVec3f normal;
-//        int is_intersect;
-//        float z_component;
 
         /* Light */
         SoLight *light;
@@ -63,7 +44,7 @@ class MyRayTracer{
 
         MyRayTracer(OSUInventorScene *scene);
         int sphere_intersect(SbVec3f ray, SbVec3f eye, SbSphere sphere, SbVec3f *point_intersect);
-        SbVec3f* rt(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMatrix *transform_list, SbVec3f *color);
+        void rt(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMatrix *transform_list, SbVec3f *color, int recursion_depth);
 
 	int is_in_shadow(SbVec3f intersect_point, SbVec3f light, SbVec3f light_location, OSUInventorScene *scene, SbMatrix *transform_list);
 };

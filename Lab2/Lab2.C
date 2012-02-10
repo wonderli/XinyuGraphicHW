@@ -160,6 +160,7 @@ int main(int argc, char **argv) {
         //SbColor *color = new SbColor();
         SbVec3f *color = new SbVec3f(0, 0, 0);
         float r, g, b;
+        int recursion_depth = 0;
 
         MyRayTracer *my_rt = new MyRayTracer(scene);
         /* Set scanline start begin at the left corner */
@@ -173,12 +174,22 @@ int main(int argc, char **argv) {
                         ray.normalize();
 
 //                        my_rt->rt //ray_trace(ray, eye, scene, transform_list, color);
-                        my_rt->rt(ray, eye, scene, transform_list, color);
+                        my_rt->rt(ray, eye, scene, transform_list, color, recursion_depth);
 
-                       // r = (*color)[0];
-                       // g = (*color)[1];
-                       // b = (*color)[2];
-                        color->getValue(r, g, b);
+                        r = (*color)[0];
+                        g = (*color)[1];
+                        b = (*color)[2];
+//                        color->getValue(r, g, b);
+                        r = r * 255;
+                        g = g * 255;
+                        b = b * 255;
+                        if(r > 255) r = 255;
+                        else if(r < 0) r =0;
+                        if(g > 255) g = 255;
+                        else if(g < 0) r =0;
+                        if(b > 255) b = 255;
+                        else if(b < 0) b =0;
+
                         /* Print to file*/
                         fp << (int)r << ' ' << (int)g << ' ' <<(int)b <<endl;
                         /* Move forward to next pixel*/
