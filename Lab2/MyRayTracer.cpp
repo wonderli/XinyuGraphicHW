@@ -190,8 +190,8 @@ void MyRayTracer::rt(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMatrix
                                 }
                                 light_vector = point_on_sphere - light_location; 
                                 light_vector.normalize();
-                                light_vector.negate();
                                 reflection_ray = (-2) * light_vector.dot(normal) * normal + light_vector;
+                                light_vector.negate();
                                 float N_dot_L = normal.dot(light_vector);
                                 SbVec3f V = ray;
                                 V.normalize();
@@ -220,7 +220,7 @@ void MyRayTracer::rt(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMatrix
 
                                         if(is_inshadow == 1)
                                         {
-                                                diffuse_color.setValue(0.1, 0.1, 0.1);
+                                                diffuse_color.setValue(0, 0, 0);
                                                 specular_color.setValue(0, 0, 0);
                                         }
                                         else if(is_inshadow == -1)
@@ -240,9 +240,9 @@ void MyRayTracer::rt(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMatrix
 
                                         }
                                 }
-                                              color0 += light_intensity * light_color[0] * ambient_color[0] + N_dot_L * diffuse_color[0] * light_intensity * light_color[0] + pow(V_dot_R, 20) * specular_color[0] * light_intensity * light_color[0];
-                                        color1 += light_intensity * light_color[1] * ambient_color[1] + N_dot_L * diffuse_color[1] * light_intensity * light_color[1] + pow(V_dot_R, 20) *specular_color[1] * light_intensity * light_color[1];
-                                        color2 += light_intensity * light_color[2] * ambient_color[2] + N_dot_L * diffuse_color[2] * light_intensity * light_color[2] + pow(V_dot_R, 20) *specular_color[2] * light_intensity * light_color[2];
+                                              color0 += 0.2 * ambient_color[0] + N_dot_L * diffuse_color[0] * light_intensity * light_color[0] + pow(V_dot_R, 20) * specular_color[0] * light_intensity * light_color[0];
+                                        color1 += 0.2 * ambient_color[1] + N_dot_L * diffuse_color[1] * light_intensity * light_color[1] + pow(V_dot_R, 20) *specular_color[1] * light_intensity * light_color[1];
+                                        color2 += 0.2 * ambient_color[2] + N_dot_L * diffuse_color[2] * light_intensity * light_color[2] + pow(V_dot_R, 20) *specular_color[2] * light_intensity * light_color[2];
 
 //                                              color0 += light_intensity * light_color[0] * ambient_color[0] + N_dot_L * diffuse_color[0] * light_intensity * light_color[0] * ambient_color[0] + pow(V_dot_R, 20) * specular_color[0] * light_intensity * light_color[0];
 //                                        color1 += light_intensity * light_color[1] * ambient_color[1] + N_dot_L * diffuse_color[1] * light_intensity * light_color[1] * ambient_color[1] + pow(V_dot_R, 20) *specular_color[1] * light_intensity * light_color[1];
@@ -327,11 +327,22 @@ int MyRayTracer::is_in_shadow(SbVec3f intersect_point, SbVec3f light, SbVec3f so
                         scale_vector = object->transformation->scaleFactor.getValue();
                         radius = scale_vector[0];
                         SbSphere *sphere = new SbSphere(center_new, radius);
-                        is_intersect = this->sphere_intersect(Ray, intersect_point, *sphere, point_intersect);
-                        if(is_intersect == 1) 
+                        SbVec3f normal = P - center_new;
+                        normal.normalize();
+                        float angle = normal.dot(Ray);
+                        if(acos(angle) > 90 || acos(angle) < 0)
                         {
                                 in_shadow = 1;
                                 break;
+                        }
+                        else
+                        {
+                                is_intersect = this->sphere_intersect(Ray, P, *sphere, point_intersect);
+                                if(is_intersect == 1) 
+                                {
+                                        in_shadow = 1;
+                                        break;
+                                }
                         }
                 }
         }
