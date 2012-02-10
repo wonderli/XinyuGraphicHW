@@ -199,9 +199,9 @@ SbVec3f* MyRayTracer::rt(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMa
                                 float ambient_color1 = object->material->ambientColor[0][1];
                                 float ambient_color2 = object->material->ambientColor[0][2];
                                 ambient_color.setValue(ambient_color0, ambient_color1, ambient_color2);
-                                if (V_dot_N < 0)
+                                if (N_dot_L < 0)
                                 {
-//                                        ambient_color.setValue(0, 0, 0);
+                                        ambient_color.setValue(0, 0, 0);
                                         diffuse_color.setValue(0, 0, 0);
                                         specular_color.setValue(0, 0, 0);
 
@@ -290,8 +290,11 @@ int MyRayTracer::is_in_shadow(SbVec3f intersect_point, SbVec3f light, SbVec3f so
         SbVec3f center_min(0, 0, 0);
         SbVec3f scale_vector;
         float radius = 0;
+        light.normalize();
+        light.negate();
         SbVec3f P = intersect_point + EPSLON * light;
         SbVec3f Ray = source - P;
+
 
         int is_intersect = -1;
         for (i = 0; i < length; i++)
@@ -305,10 +308,10 @@ int MyRayTracer::is_in_shadow(SbVec3f intersect_point, SbVec3f light, SbVec3f so
                         scale_vector = object->transformation->scaleFactor.getValue();
                         radius = scale_vector[0];
                         SbSphere *sphere = new SbSphere(center_new, radius);
-                        is_intersect = this->sphere_intersect(Ray, source, *sphere, point_intersect);
+                        is_intersect = this->sphere_intersect(Ray, intersect_point, *sphere, point_intersect);
                         if(is_intersect == 1) 
                         {
-                                in_shadow == 1;
+                                in_shadow = 1;
                                 break;
                         }
                 }
