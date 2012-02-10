@@ -267,6 +267,7 @@ void MyRayTracer::rt(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMatrix
                                                         float reflection_color1 = 0;
                                                         float reflection_color2 = 0;
                                                         reflection_color->getValue(reflection_color0, reflection_color1, reflection_color2);
+//                                                        shininess_factor = 0.5;
                                                         color0 = color0 + shininess_factor * reflection_color0;
                                                         color1 = color1 + shininess_factor * reflection_color1;
                                                         color2 = color2 + shininess_factor * reflection_color2;
@@ -330,7 +331,8 @@ int MyRayTracer::is_in_shadow(SbVec3f intersect_point, SbVec3f light, SbVec3f so
                         SbVec3f normal = P - center_new;
                         normal.normalize();
                         float angle = normal.dot(Ray);
-                        if(acos(angle) > 90 || acos(angle) < 0)
+                       if(acos(angle) > 90 || acos(angle) < 0)
+//                        if(angle < 0)
                         {
                                 in_shadow = 1;
                                 break;
