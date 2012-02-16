@@ -18,8 +18,8 @@ EXEC = rt
 
 .C.o:
 	$(CPP) -c  $(CPPFLAGS) $(INCLUDES) $<
-.cpp.o:
-	$(CPP) -c  $(CPPFLAGS) $(INCLUDES) $<
+#.cpp.o:
+#	$(CPP) -c  $(CPPFLAGS) $(INCLUDES) $<
 
 Lab2: $(OBJECT_FILES)
 	$(CPP) -o $(EXEC) $(CPPFLAGS) $(OBJECT_FILES) \
