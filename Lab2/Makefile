@@ -4,7 +4,8 @@ COIN_DIRECTORY = /usr/local/Coin3d
 COIN_INCLUDE = -I$(COIN_DIRECTORY)/include
 COIN_LIBRARIES = -L$(COIN_DIRECTORY)/lib
 
-CPP = g++  -R$(COIN_DIRECTORY)/lib
+#CPP = g++  -R$(COIN_DIRECTORY)/lib
+CPP = g++  
 INCLUDES = $(COIN_INCLUDE) 
 
 # Uncomment to turn on debugging:
@@ -12,7 +13,7 @@ CPPFLAGS = -g -DDEBUG
 
 LIBRARIES =  $(COIN_LIBRARIES) -lCoin 
 
-OBJECT_FILES =  OSUInventor.o MyScene.o MyRayTracer.o Lab2.o 
+OBJECT_FILES = OSUInventor.o MyScene.o MyRayTracer.o Lab2.o
 EXEC = rt
 
 .C.o:
