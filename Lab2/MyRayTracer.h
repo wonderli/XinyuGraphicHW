@@ -22,7 +22,7 @@ using namespace std;
 #define PI 3.1415926536
 #define ZERO 1e-6
 #define FAR 1e10
-#define EPSLON 1e-3
+//#define EPSLON 1e-3
 #define MAXRECURSION 3
 class MyRayTracer{
         public:

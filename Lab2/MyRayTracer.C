@@ -132,6 +132,7 @@ int MyRayTracer::sphere_intersect(SbVec3f ray, SbVec3f eye, SbSphere sphere, SbV
                         float reflection_color0 = 0;
                         float reflection_color1 = 0;
                         float reflection_color2 = 0;
+                        float EPSLON = 1e-3;
 
                         for (i = 0; i < length; i++)
                         {
@@ -297,7 +298,7 @@ int MyRayTracer::sphere_intersect(SbVec3f ray, SbVec3f eye, SbSphere sphere, SbV
                                       reflection_ray = (-2) * ray.dot(normal) * normal + ray;
                                       SbVec3f reflection_ray_normal = reflection_ray;
                                       reflection_ray_normal.normalize();
-                                      SbVec3f *reflection_color = new SbVec3f(0, 0, 0);
+                                      SbVec3f *reflection_color = new SbVec3f(0, 0, 0);                                     
                                       this->rt(reflection_ray_normal, point_on_sphere + EPSLON * reflection_ray_normal, scene, transform_list, reflection_color, recursion_depth + 1, shadow_on, reflection_on);
                                       float reflection_color0 = 0;
                                       float reflection_color1 = 0;
@@ -350,8 +351,8 @@ int MyRayTracer::is_in_shadow(SbVec3f intersect_point, SbVec3f light_vector, SbV
         float radius = 0;
         light_vector.normalize();
         light_vector.negate();
-//        SbVec3f P = intersect_point + EPSLON * light_vector;
-        SbVec3f P = (SbVec3f)(intersect_point + EPSLON * light_vector);
+        float EPSLON = 1e-3;
+        SbVec3f P = intersect_point + EPSLON * light_vector;
         SbVec3f Ray = light_location - P;
         Ray.normalize();
 
