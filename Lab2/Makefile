@@ -13,19 +13,29 @@ CPPFLAGS = -g -DDEBUG
 
 LIBRARIES =  $(COIN_LIBRARIES) -lCoin 
 
-#OBJECT_FILES = OSUInventor.o MyScene.o MyRayTracer.o Lab2.o
-#EXEC = rt
+OBJECT_FILES = OSUInventor.o MyScene.o MyRayTracer.o Lab2.o
+EXEC = rt
+
+OSUInventor.o:
+	$(CPP) -c  $(CPPFLAGS) $(INCLUDES) OSUInventor.h OSUInventor.C
+MyScene.o:
+	$(CPP) -c  $(CPPFLAGS) $(INCLUDES) MyScene.h MyScene.cpp
+MyRayTracer.o:
+	$(CPP) -c  $(CPPFLAGS) $(INCLUDES) MyRayTracer.h MyRayTracer.cpp
+Lab2: $(OBJECT_FILES)
+	$(CPP) -o $(EXEC) $(CPPFLAGS) $(OBJECT_FILES) \
+        $(LDFLAGS) $(LIBRARIES)
+
+
 
 #.C.o:
-#	$(CPP) -c  $(CPPFLAGS) $(INCLUDES) $<
+	$(CPP) -c  $(CPPFLAGS) $(INCLUDES) $<
 #.cpp.o:
-#	$(CPP) -c  $(CPPFLAGS) $(INCLUDES) $<
+	$(CPP) -c  $(CPPFLAGS) $(INCLUDES) $<
 
 #Lab2: $(OBJECT_FILES)
 #	$(CPP) -o $(EXEC) $(CPPFLAGS) $(OBJECT_FILES) \
         $(LDFLAGS) $(LIBRARIES)
-rt:
-	$(CPP) -g -o rt OSUInventor.h OSUInventor.C MyScene.h MyScene.cpp MyRayTracer.h MyRayTracer.cpp Lab2.C $(CPPFLAGS) $(LDFLAGS) $(LIBRARIES)
 
 
 clean:
