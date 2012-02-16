@@ -4,6 +4,10 @@
 #ifndef _OSU_INVENTOR_H_
 #define _OSU_INVENTOR_H_
 
+
+#include <Inventor/SbVec3f.h>
+
+
 #include <Inventor/SbPList.h>
 #include <Inventor/SoType.h>
 #include <Inventor/actions/SoCallbackAction.h>
