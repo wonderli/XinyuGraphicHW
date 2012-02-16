@@ -17,6 +17,22 @@
 #include <Inventor/nodes/SoTransform.h>
 #include <Inventor/nodes/SoCamera.h>
 
+#include <Inventor/SbLinear.h>
+#include <Inventor/actions/SoGetMatrixAction.h>
+#include <Inventor/nodes/SoPerspectiveCamera.h>
+#include <Inventor/nodes/SoTransform.h>
+#include <Inventor/nodes/SoSphere.h>
+#include <Inventor/nodes/SoCube.h>
+#include <Inventor/nodes/SoLight.h>
+#include <Inventor/nodes/SoPointLight.h>
+#include <Inventor/nodes/SoSpotLight.h>
+#include <Inventor/nodes/SoDirectionalLight.h>
+
+
+
+
+
+
 class TextureType {
     int typeNum;
 };
