@@ -16,11 +16,12 @@ LIBRARIES =  $(COIN_LIBRARIES) -lCoin
 OBJECT_FILES = OSUInventor.o MyScene.o MyRayTracer.o Lab2.o
 EXEC = rt
 
-.cpp.o:
-	$(CPP) -c  $(CPPFLAGS) $(INCLUDES) $<
 .C.o:
 	$(CPP) -c  $(CPPFLAGS) $(INCLUDES) $<
-lab2: $(OBJECT_FILES)
+.cpp.o:
+	$(CPP) -c  $(CPPFLAGS) $(INCLUDES) $<
+
+Lab2: $(OBJECT_FILES)
 	$(CPP) -o $(EXEC) $(CPPFLAGS) $(OBJECT_FILES) \
         $(LDFLAGS) $(LIBRARIES)
 
