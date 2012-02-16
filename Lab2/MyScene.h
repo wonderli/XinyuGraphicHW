@@ -2,11 +2,11 @@
 #define OSU_H
 #include "OSUInventor.h"
 #endif
-#ifndef LINUX
-#include <ostream.h>
-#else
+#ifdef LINUX
 #include <iostream>
 using namespace std;
+#else
+#include <iostream.h>
 #endif
 // OpenInventor includes
 #include <Inventor/SoDB.h>
