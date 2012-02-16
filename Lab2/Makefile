@@ -4,8 +4,8 @@ COIN_DIRECTORY = /usr/local/Coin3d
 COIN_INCLUDE = -I$(COIN_DIRECTORY)/include
 COIN_LIBRARIES = -L$(COIN_DIRECTORY)/lib
 
-#CPP = g++  -R$(COIN_DIRECTORY)/lib
-CPP = g++  
+CPP = g++  -R$(COIN_DIRECTORY)/lib
+#CPP = g++  
 INCLUDES = $(COIN_INCLUDE) 
 
 # Uncomment to turn on debugging:
