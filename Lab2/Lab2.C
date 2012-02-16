@@ -43,7 +43,7 @@ void usage_error() {
 	exit(10);
 }
 int main(int argc, char **argv) {
-	if (argc < 5)
+	if (argc < 7)
 		usage_error();
 	SoDB::init();
         int length;
@@ -107,6 +107,7 @@ int main(int argc, char **argv) {
         /* Calculation Resolution */
         int xres = atoi(argv[3]);
         int yres = atoi(argv[4]);
+        
         if(xres != (int)(yres*(camera->aspectRatio.getValue()))) {
                 cout << "yres and xres value should follow the aspect ratio" << endl;
                 yres = xres/(camera->aspectRatio.getValue());
@@ -161,6 +162,8 @@ int main(int argc, char **argv) {
         SbVec3f *color = new SbVec3f(0, 0, 0);
         float r, g, b;
         int recursion_depth = 0;
+        int shadow_on = atoi(argv[5]);
+        int reflection_on = atoi(argv[6]);
 
         MyRayTracer *my_rt = new MyRayTracer(scene);
         /* Set scanline start begin at the left corner */
@@ -174,7 +177,7 @@ int main(int argc, char **argv) {
                         ray.normalize();
 
 //                        my_rt->rt //ray_trace(ray, eye, scene, transform_list, color);
-                        my_rt->rt(ray, eye, scene, transform_list, color, recursion_depth);
+                        my_rt->rt(ray, eye, scene, transform_list, color, recursion_depth, shadow_on, reflection_on);
 
                         r = (*color)[0];
                         g = (*color)[1];
