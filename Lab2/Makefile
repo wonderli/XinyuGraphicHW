@@ -25,7 +25,7 @@ LIBRARIES =  $(COIN_LIBRARIES) -lCoin
 #	$(CPP) -o $(EXEC) $(CPPFLAGS) $(OBJECT_FILES) \
         $(LDFLAGS) $(LIBRARIES)
 rt:
-	$(CPP) -g -o rt *.h *.C *.cpp $(CPPFLAGS) $(OBJECT_FILES) \
+	$(CPP) -g -o rt OSUInventor.h OSUInventor.C MyScene.h MyScene.cpp MyRayTracer.h MyRayTracer.cpp Lab2.C $(CPPFLAGS) $(OBJECT_FILES) \
 	$(LDFLAGS) $(LIBRARIES)
 
 
