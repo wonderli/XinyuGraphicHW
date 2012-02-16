@@ -2,8 +2,8 @@ How to compile this program:
 run:
 	make
 How to run this program:
-	./rt <input.iv> <output.ppm> <yres> <xres>
+	./rt <input.iv> <output.ppm> <yres> <xres> <shadow_on> <reflection_on>
         You can also run the script:
                 ./script_stdsun.sh
-        It will generate the sphere1.ppm, sphere2.ppm, mickeyspheres.ppm  sphereTower.ppm as xres 500, yres 500
+        It will generate the sphere3s_reflection.ppm, mickeyspheres_reflection.ppm, sphereCycloidLit_reflection.ppm, sphereCycloid_reflection.ppm and sphereTowerLit_reflection.ppm as xres 500, yres 500 1 1
 
