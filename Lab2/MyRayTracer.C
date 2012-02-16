@@ -350,7 +350,8 @@ int MyRayTracer::is_in_shadow(SbVec3f intersect_point, SbVec3f light_vector, SbV
         float radius = 0;
         light_vector.normalize();
         light_vector.negate();
-        SbVec3f P = intersect_point + EPSLON * light_vector;
+//        SbVec3f P = intersect_point + EPSLON * light_vector;
+        SbVec3f P = (SbVec3f)(intersect_point + EPSLON * light_vector);
         SbVec3f Ray = light_location - P;
         Ray.normalize();
 
