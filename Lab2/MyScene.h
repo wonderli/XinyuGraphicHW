@@ -6,7 +6,7 @@
 #include <iostream>
 using namespace std;
 #else
-#include <iostream.h>
+#include <ostream.h>
 #endif
 // OpenInventor includes
 #include <Inventor/SoDB.h>
