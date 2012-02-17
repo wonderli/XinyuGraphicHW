@@ -13,7 +13,7 @@ CPPFLAGS = -g -DDEBUG
 
 LIBRARIES =  $(COIN_LIBRARIES) -lCoin 
 
-OBJECT_FILES = OSUInventor.o MyScene.o MyRayTracer.o Lab2.o
+OBJECT_FILES = OSUInventor.o MyScene.o MyRayTracer.o Lab3.o
 EXEC = rt
 
 #OSUInventor.o:
@@ -30,7 +30,7 @@ EXEC = rt
 .C.o:
 	$(CPP) -c  $(CPPFLAGS) $(INCLUDES) $<
 
-Lab2: $(OBJECT_FILES)
+Lab3: $(OBJECT_FILES)
 	$(CPP) -o $(EXEC) $(CPPFLAGS) $(OBJECT_FILES) \
         $(LDFLAGS) $(LIBRARIES)
 

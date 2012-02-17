@@ -128,7 +128,9 @@ int MyRayTracer::sphere_intersect(SbVec3f ray, SbVec3f eye, SbSphere sphere, SbV
                         float color2 = 0;
                         int min_index = 0;
                         float shininess_factor = 0;
+                        float transparency_factor = 0;
                         SbVec3f reflection_ray(0, 0, 0);
+                        SbVec3f refraction_ray(0, 0, 0);
                         float reflection_color0 = 0;
                         float reflection_color1 = 0;
                         float reflection_color2 = 0;
@@ -198,6 +200,8 @@ int MyRayTracer::sphere_intersect(SbVec3f ray, SbVec3f eye, SbSphere sphere, SbV
                                         float V_dot_R = V.dot(R);
                                         object = (OSUObjectData *)scene->Objects[min_index];
                                         shininess_factor = object->material->shininess[0];
+                                        transparency_factor = object->material->transparency[0];
+                                        
 
                                         /*ambient color*/
                                         float ambient_color0 = object->material->ambientColor[0][0];
@@ -309,6 +313,28 @@ int MyRayTracer::sphere_intersect(SbVec3f ray, SbVec3f eye, SbSphere sphere, SbV
                                       color1 = color1 + shininess_factor * reflection_color1;
                                       color2 = color2 + shininess_factor * reflection_color2;
                               }
+//                              if(transparency_factor > 0)
+//                              {
+//                                      SbVec3f ray_negate = (-1) * ray;
+//                                      transparency_factor = 1 / transparency_factor;
+//                                      float delta = 1 - transparency_factor * transparency_factor * (1 - normal.dot(ray_negate) * normal.dot(ray_negate));
+//                                      if(delta > 0)
+//                                      {
+//                                              refraction_ray = (transparency_factor * normal.dot(ray_negate) - sqrt(delta)) * normal - transparency_factor * ray_negate;
+//                                              SbVec3f refraction_ray_normal = refraction_ray;
+//                                              refraction_ray_normal.normalize();
+//                                              SbVec3f *refraction_color = new SbVec3f(0, 0, 0);                                     
+//                                              this->rt(refraction_ray_normal, point_on_sphere + EPSLON * refraction_ray_normal, scene, transform_list, refraction_color, recursion_depth + 1, shadow_on, reflection_on);
+//                                              float refraction_color0 = 0;
+//                                              float refraction_color1 = 0;
+//                                              float refraction_color2 = 0;
+//                                              refraction_color->getValue(refraction_color0, refraction_color1, refraction_color2);
+//                                              color0 = color0 + transparency_factor * refraction_color0;
+//                                              color1 = color1 + transparency_factor * refraction_color1;
+//                                              color2 = color2 + transparency_factor * refraction_color2;
+//                                      }
+//
+//                              }
 
                       }
 
@@ -383,5 +409,15 @@ int MyRayTracer::is_in_shadow(SbVec3f intersect_point, SbVec3f light_vector, SbV
         }
 
         return in_shadow;
+
+}
+
+void refract(SbVec3f d, SbVec3f n, float Eta, SbVec3f, SbVec3f *t)
+{
+        SbVec3f d_neg = (-1) * d;
+        float N_dot_V = n.dot(d_neg);
+
+
+
 
 }
