@@ -133,7 +133,9 @@ int MyRayTracer::sphere_intersect(SbVec3f ray, SbVec3f eye, SbSphere sphere, SbV
                         float reflection_color1 = 0;
                         float reflection_color2 = 0;
                         float EPSLON = 1e-3;
-                        float Eta = 1;
+                        float Eta_i = 1.0;
+                        float Eta_t = 1.5;
+                        float Eta = Eta_i/Eta_t;
                         float transparency_factor = 0;
                         float cosine_value = 0;
                         float R_Zero = 0;
@@ -212,6 +214,10 @@ int MyRayTracer::sphere_intersect(SbVec3f ray, SbVec3f eye, SbSphere sphere, SbV
                                         float V_dot_R = V.dot(R);
                                         object = (OSUObjectData *)scene->Objects[min_index];
                                         shininess_factor = object->material->shininess[0];
+                                        if(object->material->transparency[0] != NULL)
+                                        {
+                                                transparency_factor = object->material->transparency[0];
+                                        }
 
                                         /*ambient color*/
                                         float ambient_color0 = object->material->ambientColor[0][0];
@@ -306,10 +312,6 @@ int MyRayTracer::sphere_intersect(SbVec3f ray, SbVec3f eye, SbSphere sphere, SbV
               {
                       if(recursion_depth < MAXRECURSION)
                       {
-                              if(object->material->transparency[0] != NULL)
-                              {
-                                      transparency_factor = object->material->transparency[0];
-                              }
                               if(shininess_factor > 0) 
                               {       
 
@@ -329,36 +331,37 @@ int MyRayTracer::sphere_intersect(SbVec3f ray, SbVec3f eye, SbSphere sphere, SbV
                                }
                               if(transparency_factor > 0)
                               {
-                                      Eta = 1.5;
-//
                                       if(ray.dot(normal) < 0)
                                       {
                                               this->refract(ray, normal, Eta, refraction_ray);
                                               SbVec3f refraction_ray_normal = *refraction_ray;
                                               refraction_ray_normal.normalize();
                                               SbVec3f *refraction_color = new SbVec3f(0, 0, 0);                                     
-//                                              ray_location = RAY_OUTSIDE;
-                                              this->rt(refraction_ray_normal, point_on_sphere + EPSLON * refraction_ray_normal, scene, transform_list, refraction_color, recursion_depth + 1, shadow_on, reflection_on, RAY_OUTSIDE);
+                                              this->rt(refraction_ray_normal, point_on_sphere + EPSLON * refraction_ray_normal, scene, transform_list, refraction_color, recursion_depth + 1, shadow_on, reflection_on, RAY_INSIDE);
                                               float refraction_color0 = 0;
                                               float refraction_color1 = 0;
                                               float refraction_color2 = 0;
                                               refraction_color->getValue(refraction_color0, refraction_color1, refraction_color2);
+
                                               cosine_value = (-1) * normal.dot(ray);
 
                                       }
                                       else
                                       {
-                                              //if(True == this->refract(ray, normal*(-1), 1/Eta, refraction_ray))
-                                              if(True == this->refract(ray, normal*(-1), 1/Eta, refraction_ray))
+                                              SbVec3f normal_neg = normal;
+                                              normal_neg.negate();
+                                              if(True == this->refract(ray, normal_neg, 1/Eta, refraction_ray))
                                               {
                                                       SbVec3f refraction_ray_normal = *refraction_ray;
                                                       refraction_ray_normal.normalize();
                                                       SbVec3f *refraction_color = new SbVec3f(0, 0, 0);                                     
-                                                      this->rt(refraction_ray_normal, point_on_sphere + EPSLON * refraction_ray_normal, scene, transform_list, refraction_color, recursion_depth + 1, shadow_on, reflection_on, RAY_INSIDE);
+                                                      this->rt(refraction_ray_normal, point_on_sphere + EPSLON * refraction_ray_normal, scene, transform_list, refraction_color, recursion_depth + 1, shadow_on, reflection_on, RAY_OUTSIDE);
                                                       refraction_color0 = 0;
                                                       refraction_color1 = 0;
                                                       refraction_color2 = 0;
                                                       refraction_color->getValue(refraction_color0, refraction_color1, refraction_color2);
+
+
                                                       cosine_value = refraction_ray_normal.dot(normal);
 
 
@@ -376,15 +379,15 @@ int MyRayTracer::sphere_intersect(SbVec3f ray, SbVec3f eye, SbSphere sphere, SbV
                                       }
                                       if(ONLY_REFLECTION != True)
                                       {
-//                                              R_Zero = ((Eta - 1)*(Eta - 1)) / ((Eta + 1) * (Eta +1));
- //                                             R_Value = R_Zero + (1 - R_Zero)*pow((1 - cosine_value), 5);
-//                                              color0 = color0 + R_Value * reflection_color0 + (1 - R_Value) * refraction_color0;
-//                                              color1 = color1 + R_Value * reflection_color1 + (1 - R_Value) * refraction_color1;
-//                                              color2 = color2 + R_Value * reflection_color2 + (1 - R_Value) * refraction_color2;
-                                              color0 = color0 + transparency_factor * refraction_color0;
-                                              color1 = color1 + transparency_factor * refraction_color1;
-                                              color2 = color2 + transparency_factor * refraction_color2;
-
+                                              R_Zero = ((Eta - 1)*(Eta - 1)) / ((Eta + 1) * (Eta +1));
+                                              R_Value = R_Zero + (1 - R_Zero)*pow((1 - cosine_value), 5);
+                                              color0 = color0 + R_Value * reflection_color0 + (1 - R_Value) * refraction_color0;
+                                              color1 = color1 + R_Value * reflection_color1 + (1 - R_Value) * refraction_color1;
+                                              color2 = color2 + R_Value * reflection_color2 + (1 - R_Value) * refraction_color2;
+//                                              color0 = color0 + transparency_factor * refraction_color0;
+//                                              color1 = color1 + transparency_factor * refraction_color1;
+//                                              color2 = color2 + transparency_factor * refraction_color2;
+//
                                       }
 
               
@@ -467,12 +470,14 @@ int MyRayTracer::is_in_shadow(SbVec3f intersect_point, SbVec3f light_vector, SbV
 
 int MyRayTracer::refract(SbVec3f d, SbVec3f n, float Eta, SbVec3f *t)
 {
-        SbVec3f d_neg = (-1) * d;
-        float N_dot_V = n.dot(d_neg);
+//        SbVec3f d_neg = d;
+//        d_neg.negate();
+//        float N_dot_V = n.dot(d_neg);
+        float N_dot_V = n.dot(d);
         float under_sqrt = 1 - Eta*Eta*(1 - N_dot_V*N_dot_V);
         if(under_sqrt >= 0)
         {
-                *t = (Eta * N_dot_V - sqrt(under_sqrt) )* n + Eta * d;
+                *t = ((-1)*Eta * N_dot_V - sqrt(under_sqrt))* n + Eta * d;
                 return True;
 
         }
