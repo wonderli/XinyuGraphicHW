@@ -128,19 +128,21 @@ int MyRayTracer::sphere_intersect(SbVec3f ray, SbVec3f eye, SbSphere sphere, SbV
                         float color2 = 0;
                         int min_index = 0;
                         float shininess_factor = 0;
-                        float transparency_factor = 0;
                         SbVec3f reflection_ray(0, 0, 0);
-                        SbVec3f *refraction_ray = new SbVec3f(0, 0, 0);
                         float reflection_color0 = 0;
                         float reflection_color1 = 0;
                         float reflection_color2 = 0;
                         float EPSLON = 1e-3;
                         float Eta = 1;
+                        float transparency_factor = 0;
                         float cosine_value = 0;
+                        float R_Zero = 0;
+                        float R_Value = 0;
                         float refraction_color0 = 0;
                         float refraction_color1 = 0;
                         float refraction_color2 = 0;
-
+                        int ONLY_REFLECTION = 0;
+                        SbVec3f *refraction_ray = new SbVec3f(0, 0, 0);
 
                         for (i = 0; i < length; i++)
                         {
@@ -176,8 +178,7 @@ int MyRayTracer::sphere_intersect(SbVec3f ray, SbVec3f eye, SbSphere sphere, SbV
                         normal.normalize();
                         if(ray_location == RAY_INSIDE)
                         {
-                                normal = normal * (-1);
-                                Eta = 1 / Eta;
+                                normal.negate();
                         }
                         for(i = 0; i < length; i++) 
                         {
@@ -211,12 +212,6 @@ int MyRayTracer::sphere_intersect(SbVec3f ray, SbVec3f eye, SbSphere sphere, SbV
                                         float V_dot_R = V.dot(R);
                                         object = (OSUObjectData *)scene->Objects[min_index];
                                         shininess_factor = object->material->shininess[0];
-                                        if(object->material->transparency[0] != NULL)
-                                        {
-                                                transparency_factor = object->material->transparency[0];
-                        //                        Eta = 1 / transparency_factor;
-                                                Eta = transparency_factor;                        
-                                        }
 
                                         /*ambient color*/
                                         float ambient_color0 = object->material->ambientColor[0][0];
@@ -311,6 +306,10 @@ int MyRayTracer::sphere_intersect(SbVec3f ray, SbVec3f eye, SbSphere sphere, SbV
               {
                       if(recursion_depth < MAXRECURSION)
                       {
+                              if(object->material->transparency[0] != NULL)
+                              {
+                                      transparency_factor = object->material->transparency[0];
+                              }
                               if(shininess_factor > 0) 
                               {       
 
@@ -318,86 +317,83 @@ int MyRayTracer::sphere_intersect(SbVec3f ray, SbVec3f eye, SbSphere sphere, SbV
                                       SbVec3f reflection_ray_normal = reflection_ray;
                                       reflection_ray_normal.normalize();
                                       SbVec3f *reflection_color = new SbVec3f(0, 0, 0);                                     
-//                                      ray_location = RAY_OUTSIDE;
-                                      this->rt(reflection_ray_normal, point_on_sphere + EPSLON * reflection_ray_normal, scene, transform_list, reflection_color, recursion_depth + 1, shadow_on, reflection_on, ray_location);
+                                      this->rt(reflection_ray_normal, point_on_sphere + EPSLON * reflection_ray_normal, scene, transform_list, reflection_color, recursion_depth + 1, shadow_on, reflection_on, 1);
                                       float reflection_color0 = 0;
                                       float reflection_color1 = 0;
                                       float reflection_color2 = 0;
+                                      //                                                        shininess_factor = 0.5;
                                       reflection_color->getValue(reflection_color0, reflection_color1, reflection_color2);
                                       color0 = color0 + shininess_factor * reflection_color0;
                                       color1 = color1 + shininess_factor * reflection_color1;
                                       color2 = color2 + shininess_factor * reflection_color2;
-                              }
-
-                              /* Refraction */
-                              if(Eta > 0)
+                               }
+                              if(transparency_factor > 0)
                               {
-
+                                      Eta = 1.5;
+//
                                       if(ray.dot(normal) < 0)
                                       {
-
                                               this->refract(ray, normal, Eta, refraction_ray);
                                               SbVec3f refraction_ray_normal = *refraction_ray;
                                               refraction_ray_normal.normalize();
                                               SbVec3f *refraction_color = new SbVec3f(0, 0, 0);                                     
-                                              ray_location = RAY_OUTSIDE;
-                                              this->rt(refraction_ray_normal, point_on_sphere + EPSLON * refraction_ray_normal, scene, transform_list, refraction_color, recursion_depth + 1, shadow_on, reflection_on, ray_location);
+//                                              ray_location = RAY_OUTSIDE;
+                                              this->rt(refraction_ray_normal, point_on_sphere + EPSLON * refraction_ray_normal, scene, transform_list, refraction_color, recursion_depth + 1, shadow_on, reflection_on, RAY_OUTSIDE);
                                               float refraction_color0 = 0;
                                               float refraction_color1 = 0;
                                               float refraction_color2 = 0;
                                               refraction_color->getValue(refraction_color0, refraction_color1, refraction_color2);
-                                              cosine_value = normal.dot(ray*(-1));
-                                              //cosine_value = (-1) * normal.dot(ray);
-                                              float R_Zero = ((Eta - 1)*(Eta - 1)) / ((Eta + 1) * (Eta +1));
-                                              float R_Value = R_Zero + (1 - R_Zero)*pow((1 - cosine_value), 5);
-                                              color0 = color0 + R_Value * reflection_color0 + (1 - R_Value) * refraction_color0;
-                                              color1 = color1 + R_Value * reflection_color1 + (1 - R_Value) * refraction_color1;
-                                              color2 = color2 + R_Value * reflection_color2 + (1 - R_Value) * refraction_color2;
-
+                                              cosine_value = (-1) * normal.dot(ray);
 
                                       }
                                       else
                                       {
+                                              //if(True == this->refract(ray, normal*(-1), 1/Eta, refraction_ray))
                                               if(True == this->refract(ray, normal*(-1), 1/Eta, refraction_ray))
                                               {
                                                       SbVec3f refraction_ray_normal = *refraction_ray;
                                                       refraction_ray_normal.normalize();
                                                       SbVec3f *refraction_color = new SbVec3f(0, 0, 0);                                     
-                                                      ray_location = RAY_INSIDE;
-                                                      this->rt(refraction_ray_normal, point_on_sphere + EPSLON * refraction_ray_normal, scene, transform_list, refraction_color, recursion_depth + 1, shadow_on, reflection_on, ray_location);
+                                                      this->rt(refraction_ray_normal, point_on_sphere + EPSLON * refraction_ray_normal, scene, transform_list, refraction_color, recursion_depth + 1, shadow_on, reflection_on, RAY_INSIDE);
                                                       refraction_color0 = 0;
                                                       refraction_color1 = 0;
                                                       refraction_color2 = 0;
                                                       refraction_color->getValue(refraction_color0, refraction_color1, refraction_color2);
                                                       cosine_value = refraction_ray_normal.dot(normal);
-                                                      float R_Zero = ((Eta - 1)*(Eta - 1)) / ((Eta + 1) * (Eta +1));
-                                                      float R_Value = R_Zero + (1 - R_Zero)*pow((1 - cosine_value), 5);
-                                                      color0 = color0 + R_Value * reflection_color0 + (1 - R_Value) * refraction_color0;
-                                                      color1 = color1 + R_Value * reflection_color1 + (1 - R_Value) * refraction_color1;
-                                                      color2 = color2 + R_Value * reflection_color2 + (1 - R_Value) * refraction_color2;
+
 
                                               }
                                               else 
                                               {
+                                                      
                                                       SbVec3f *refraction_color = new SbVec3f(0, 0, 0);                                     
                                                       refraction_color0 = 0;
                                                       refraction_color1 = 0;
                                                       refraction_color2 = 0;
-                                                      cosine_value = 0;
+//                                                      cosine_value = 0;
+                                                      ONLY_REFLECTION = True;
                                               }
                                       }
+                                      if(ONLY_REFLECTION != True)
+                                      {
+//                                              R_Zero = ((Eta - 1)*(Eta - 1)) / ((Eta + 1) * (Eta +1));
+ //                                             R_Value = R_Zero + (1 - R_Zero)*pow((1 - cosine_value), 5);
+//                                              color0 = color0 + R_Value * reflection_color0 + (1 - R_Value) * refraction_color0;
+//                                              color1 = color1 + R_Value * reflection_color1 + (1 - R_Value) * refraction_color1;
+//                                              color2 = color2 + R_Value * reflection_color2 + (1 - R_Value) * refraction_color2;
+                                              color0 = color0 + transparency_factor * refraction_color0;
+                                              color1 = color1 + transparency_factor * refraction_color1;
+                                              color2 = color2 + transparency_factor * refraction_color2;
+
+                                      }
+
+              
 
                               }
-
-                    }
-
-
+                      }
               }
-//              float R_Zero = ((Eta - 1)*(Eta - 1)) / ((Eta + 1) * (Eta +1));
-//              float R_Value = R_Zero + (1 - R_Zero)*pow((1 - cosine_value), 5);
-//              color0 = color0 + R_Value * reflection_color0 + (1 - R_Value) * refraction_color0;
-//              color1 = color1 + R_Value * reflection_color1 + (1 - R_Value) * refraction_color1;
-//              color2 = color2 + R_Value * reflection_color2 + (1 - R_Value) * refraction_color2;
+              
+
 
                 (*color).setValue(color0, color1, color2);
 
@@ -483,3 +479,10 @@ int MyRayTracer::refract(SbVec3f d, SbVec3f n, float Eta, SbVec3f *t)
         else
         return False;
 }
+
+
+
+
+
+
+

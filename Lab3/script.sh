@@ -6,6 +6,7 @@ make -f Makefile.linux
 #./rt sphereCycloid.iv sphereCycloid.ppm 500 500
 
 
+#./rt refraction1.iv refraction1.ppm 500 500 1 1 > output.txt |tail -f output.txt
 ./rt refraction1.iv refraction1.ppm 500 500 1 1
 ./rt refraction2.iv refraction2.ppm 500 500 1 1
 ./rt refraction3.iv refraction3.ppm 500 500 1 1
