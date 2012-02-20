@@ -177,7 +177,8 @@ int main(int argc, char **argv) {
                         ray.normalize();
 
 //                        my_rt->rt //ray_trace(ray, eye, scene, transform_list, color);
-                        my_rt->rt(ray, eye, scene, transform_list, color, recursion_depth, shadow_on, reflection_on);
+                        int ray_location = RAY_OUTSIDE;                        
+                        my_rt->rt(ray, eye, scene, transform_list, color, recursion_depth, shadow_on, reflection_on, ray_location);
 
                         r = (*color)[0];
                         g = (*color)[1];
