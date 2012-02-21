@@ -360,8 +360,10 @@ int MyRayTracer::sphere_intersect(SbVec3f ray, SbVec3f eye, SbSphere sphere, SbV
 					      color0 = color0 + transparency_factor * refraction_color0;
                                               color1 = color1 + transparency_factor * refraction_color1;
                                               color2 = color2 + transparency_factor * refraction_color2;
-                                              cosine_value = (-1) * normal.dot(ray);
-
+                                              //color0 = color0 + (1 - transparency_factor) * refraction_color0;
+                                              //color1 = color1 + (1 - transparency_factor) * refraction_color1;
+                                              //color2 = color2 + (1 - transparency_factor) * refraction_color2;
+                                             cosine_value = (-1) * normal.dot(ray);
                                       }
                                       else
                                       {
@@ -382,7 +384,10 @@ int MyRayTracer::sphere_intersect(SbVec3f ray, SbVec3f eye, SbSphere sphere, SbV
 						      color0 = color0 + transparency_factor * refraction_color0;
 						      color1 = color1 + transparency_factor * refraction_color1;
 						      color2 = color2 + transparency_factor * refraction_color2;
-//                                             
+						      //color0 = color0 + (1 - transparency_factor) * refraction_color0;
+						      //color1 = color1 + (1 - transparency_factor) * refraction_color1;
+						      //color2 = color2 + (1 - transparency_factor) * refraction_color2;
+
 
                                               }
                                               else 
@@ -397,6 +402,10 @@ int MyRayTracer::sphere_intersect(SbVec3f ray, SbVec3f eye, SbSphere sphere, SbV
 						      color0 = color0 + transparency_factor * refraction_color0;
 						      color1 = color1 + transparency_factor * refraction_color1;
 						      color2 = color2 + transparency_factor * refraction_color2;
+						      //color0 = color0 + (1 - transparency_factor) * refraction_color0;
+						      //color1 = color1 + (1 - transparency_factor) * refraction_color1;
+						      //color2 = color2 + (1 - transparency_factor) * refraction_color2;
+
 
 
       
@@ -486,8 +495,11 @@ int MyRayTracer::is_in_shadow(SbVec3f intersect_point, SbVec3f light_vector, SbV
                         is_intersect = this->sphere_intersect(Ray, P, *sphere, point_intersect);
                         if(is_intersect == 1) 
                         {
-                                in_shadow = 1;
-                                break;
+				if(object->material->transparency[0] <= 0)
+				{
+					in_shadow = 1;
+					break;
+				}
                         }
                 }
         }
