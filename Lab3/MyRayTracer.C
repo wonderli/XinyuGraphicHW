@@ -339,9 +339,25 @@ int MyRayTracer::sphere_intersect(SbVec3f ray, SbVec3f eye, SbSphere sphere, SbV
                                       color0 = color0 + shininess_factor * reflection_color0;
                                       color1 = color1 + shininess_factor * reflection_color1;
                                       color2 = color2 + shininess_factor * reflection_color2;
-				 //     reflection_color0_total = reflection_color0_total + shininess_factor * reflection_color0;
-                                 //     reflection_color1_total = reflection_color1_total + shininess_factor * reflection_color1;
-                                 //     reflection_color2_total = reflection_color2_total + shininess_factor * reflection_color2;
+                                      if(object->material->transparency[0] > 0)
+                                      {
+                                              transparency_factor =  object->material->transparency[0];
+                                      }
+                                      if(transparency_factor > 0)
+                                      {
+                                              color0 = (1 - transparency_factor) * color0;
+                                              color1 = (1 - transparency_factor) * color1;
+                                              color2 = (1 - transparency_factor) * color2;
+//                                              reflection_color0_total = reflection_color0_total + shininess_factor * reflection_color0;
+//                                              reflection_color1_total = reflection_color1_total + shininess_factor * reflection_color1;
+//                                              reflection_color2_total = reflection_color2_total + shininess_factor * reflection_color2;
+                                      }
+//                                      else
+//                                      {
+//                                              color0 = color0 + shininess_factor * reflection_color0;
+//                                              color1 = color1 + shininess_factor * reflection_color1;
+//                                              color2 = color2 + shininess_factor * reflection_color2;
+//                                      }
                               }
                               if(object->material->transparency[0] > 0)
                               {
@@ -357,13 +373,13 @@ int MyRayTracer::sphere_intersect(SbVec3f ray, SbVec3f eye, SbSphere sphere, SbV
                                               float refraction_color1 = 0;
                                               float refraction_color2 = 0;
                                               refraction_color->getValue(refraction_color0, refraction_color1, refraction_color2);
-					      color0 = color0 + transparency_factor * refraction_color0;
+                                              color0 = color0 + transparency_factor * refraction_color0;
                                               color1 = color1 + transparency_factor * refraction_color1;
                                               color2 = color2 + transparency_factor * refraction_color2;
-                                              //color0 = color0 + (1 - transparency_factor) * refraction_color0;
-                                              //color1 = color1 + (1 - transparency_factor) * refraction_color1;
-                                              //color2 = color2 + (1 - transparency_factor) * refraction_color2;
-                                             cosine_value = (-1) * normal.dot(ray);
+//                                              color0 = color0 + (1-transparency_factor)*reflection_color0_total+transparency_factor * refraction_color0;
+//                                              color1 = color1 + (1-transparency_factor)*reflection_color1_total+transparency_factor * refraction_color1;
+//                                              color2 = color2 + (1-transparency_factor)*reflection_color2_total+transparency_factor * refraction_color2;
+                                              cosine_value = (-1) * normal.dot(ray);
                                       }
                                       else
                                       {
@@ -384,10 +400,10 @@ int MyRayTracer::sphere_intersect(SbVec3f ray, SbVec3f eye, SbSphere sphere, SbV
 						      color0 = color0 + transparency_factor * refraction_color0;
 						      color1 = color1 + transparency_factor * refraction_color1;
 						      color2 = color2 + transparency_factor * refraction_color2;
-						      //color0 = color0 + (1 - transparency_factor) * refraction_color0;
-						      //color1 = color1 + (1 - transparency_factor) * refraction_color1;
-						      //color2 = color2 + (1 - transparency_factor) * refraction_color2;
-
+//                                                      color0 = color0 + (1-transparency_factor)*reflection_color0_total+transparency_factor * refraction_color0;
+//                                                      color1 = color1 + (1-transparency_factor)*reflection_color1_total+transparency_factor * refraction_color1;
+//                                                      color2 = color2 + (1-transparency_factor)*reflection_color2_total+transparency_factor * refraction_color2;
+//
 
                                               }
                                               else 
@@ -399,12 +415,12 @@ int MyRayTracer::sphere_intersect(SbVec3f ray, SbVec3f eye, SbSphere sphere, SbV
                                                       refraction_color2 = 0;
 //                                                      cosine_value = 0;
 						      ONLY_REFLECTION = True;
-						      color0 = color0 + transparency_factor * refraction_color0;
-						      color1 = color1 + transparency_factor * refraction_color1;
-						      color2 = color2 + transparency_factor * refraction_color2;
-						      //color0 = color0 + (1 - transparency_factor) * refraction_color0;
-						      //color1 = color1 + (1 - transparency_factor) * refraction_color1;
-						      //color2 = color2 + (1 - transparency_factor) * refraction_color2;
+//						      color0 = color0 + transparency_factor * refraction_color0;
+//						      color1 = color1 + transparency_factor * refraction_color1;
+//						      color2 = color2 + transparency_factor * refraction_color2;
+                                                      color0 = color0 + (1-transparency_factor)*reflection_color0_total+transparency_factor * refraction_color0;
+                                                      color1 = color1 + (1-transparency_factor)*reflection_color1_total+transparency_factor * refraction_color1;
+                                                      color2 = color2 + (1-transparency_factor)*reflection_color2_total+transparency_factor * refraction_color2;
 
 
 
