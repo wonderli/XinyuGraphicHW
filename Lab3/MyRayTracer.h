@@ -54,5 +54,5 @@ class MyRayTracer{
 
         int refract(SbVec3f d, SbVec3f n, float Eta, SbVec3f *t);
 
-	int cube_intersect(SbVec3f ray, SbVec3f eye, SoCube *cube, SbMatrix transform_matrix, SbVec3f &point, SbVec3f &inter_normal);
+	float cube_intersect(SbVec3f ray, SbVec3f eye, SoCube *cube, SbMatrix transform_matrix, SbVec3f &point, SbVec3f &inter_normal);
 };
