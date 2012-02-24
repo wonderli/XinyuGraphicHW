@@ -546,4 +546,12 @@ int MyRayTracer::refract(SbVec3f d, SbVec3f n, float Eta, SbVec3f *t)
 
 
 
+int MyRayTracer::cube_intersect(SbVec3f ray, SbVec3f eye, SoCube *cube, SbVec3f transform_matrix, SbVec3f &point, SbVec3f &inter_normal)
+{
+        int is_intersect = True;
+        float t_near = -FAR;
+        float t_far = FAR;
+        
 
+
+}

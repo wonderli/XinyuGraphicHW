@@ -53,4 +53,6 @@ class MyRayTracer{
 	int is_in_shadow(SbVec3f intersect_point, SbVec3f light, SbVec3f light_location, OSUInventorScene *scene, SbMatrix *transform_list);
 
         int refract(SbVec3f d, SbVec3f n, float Eta, SbVec3f *t);
+
+	int cube_intersect(SbVec3f ray, SbVec3f eye, SoCube *cube, SbVec3f transform_matrix, SbVec3f &point, SbVec3f &inter_normal);
 };
