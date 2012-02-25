@@ -29,7 +29,7 @@ using namespace std;
 #include "MyScene.h"
 #include "MyRayTracer.h"
 #define PI 3.1415926536
-#define ZERO 1e-6
+//#define ZERO 1e-6
 #define FAR 1e10
 /*
 * Name: usage_error
