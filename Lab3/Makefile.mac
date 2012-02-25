@@ -28,4 +28,4 @@ lab3: $(OBJECT_FILES)
         $(LDFLAGS) $(LIBRARIES)
 
 clean:
-	rm *.o $(EXEC)
+	rm *.o $(EXEC) *.ppm
