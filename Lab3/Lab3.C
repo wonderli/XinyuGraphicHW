@@ -30,7 +30,9 @@ using namespace std;
 #include "MyRayTracer.h"
 #define PI 3.1415926536
 //#define ZERO 1e-6
+#ifndef FAR
 #define FAR 1e10
+#endif
 /*
 * Name: usage_error
 * Argument: void

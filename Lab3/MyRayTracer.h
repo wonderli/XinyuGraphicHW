@@ -20,9 +20,11 @@ using namespace std;
 #include <Inventor/nodes/SoDirectionalLight.h>
 
 #define PI 3.1415926536
-#define ZERO 0.0001
+#define ZERO 0.001
+#ifndef FAR
 #define FAR 1e10
-#define EPSLON 0.001
+#endif
+#define EPSLON 0.01
 #define MAXRECURSION 3
 #define True 1
 #define False -1
