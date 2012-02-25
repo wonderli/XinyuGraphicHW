@@ -87,7 +87,7 @@ int MyRayTracer::sphere_intersect(SbVec3f ray, SbVec3f eye, SbSphere sphere, SbV
 *
 */
 
-                void MyRayTracer::rt(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMatrix *transform_list, SbVec3f *color, int recursion_depth, int shadow_on, int reflection_on, int ray_location)
+                void MyRayTracer::rt(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMatrix *transform_list, SbVec3f *color, int recursion_depth, int shadow_on, int reflection_on, int refraction_on, int ray_location)
                 {
 
                         int i = 0;
@@ -340,6 +340,12 @@ int MyRayTracer::sphere_intersect(SbVec3f ray, SbVec3f eye, SbSphere sphere, SbV
                                       color2 += 0.2 * ambient_color[2] + N_dot_L * diffuse_color[2] * light_intensity * light_color[2] + pow(V_dot_R, 50) *specular_color[2] * light_intensity * light_color[2];
 
                                 }
+                                if(shadow_on == 0)//For no shadow but still want specular light
+                                {
+                                        color0 += specular_color_transparency0;
+                                        color1 += specular_color_transparency1;
+                                        color2 += specular_color_transparency2;
+                                }
 
 
                 }else 
@@ -368,94 +374,101 @@ int MyRayTracer::sphere_intersect(SbVec3f ray, SbVec3f eye, SbSphere sphere, SbV
                                       SbVec3f reflection_ray_normal = reflection_ray;
                                       reflection_ray_normal.normalize();
                                       SbVec3f *reflection_color = new SbVec3f(0, 0, 0);                                     
-                                      this->rt(reflection_ray_normal, point_on_sphere + EPSLON * reflection_ray_normal, scene, transform_list, reflection_color, recursion_depth + 1, shadow_on, reflection_on, 1);
+                                      this->rt(reflection_ray_normal, point_on_sphere + EPSLON * reflection_ray_normal, scene, transform_list, reflection_color, recursion_depth + 1, shadow_on, reflection_on, refraction_on, 1);
                                                                             
                                       reflection_color->getValue(reflection_color0, reflection_color1, reflection_color2);
-                                      color0 = color0 + shininess_factor * reflection_color0;
-                                      color1 = color1 + shininess_factor * reflection_color1;
-                                      color2 = color2 + shininess_factor * reflection_color2;
+//                                      color0 = color0 + shininess_factor * reflection_color0;
+//                                      color1 = color1 + shininess_factor * reflection_color1;
+//                                      color2 = color2 + shininess_factor * reflection_color2;
+                                      if(refraction_on == True)
+                                      {
+                                              if(object->material->transparency[0] > 0)
+                                              {
+                                                      transparency_factor =  object->material->transparency[0];
+                                              }
+                                              if(transparency_factor > 0)
+                                              {
+                                                      color0 = (color0 + shininess_factor * reflection_color0)*(1-transparency_factor) + specular_color_transparency0;
+                                                      color1 = (color1 + shininess_factor * reflection_color1)*(1-transparency_factor) + specular_color_transparency1;
+                                                      color2 = (color2 + shininess_factor * reflection_color2)*(1-transparency_factor) + specular_color_transparency2;
+
+                                              }
+                                              else
+                                              { 
+                                                      color0 = color0 + shininess_factor * reflection_color0;
+                                                      color1 = color1 + shininess_factor * reflection_color1;
+                                                      color2 = color2 + shininess_factor * reflection_color2;
+
+
+                                              }
+                                              
+                                      }
+                                      else
+                                      {                                      
+                                              color0 = color0 + shininess_factor * reflection_color0;
+                                              color1 = color1 + shininess_factor * reflection_color1;
+                                              color2 = color2 + shininess_factor * reflection_color2;
+
+
+                                      }
+                              }
+                              if(refraction_on == True)
+                              {
                                       if(object->material->transparency[0] > 0)
                                       {
                                               transparency_factor =  object->material->transparency[0];
-                                      }
-                                      if(transparency_factor > 0)
-                                      {
-                                              color0 = (color0 + shininess_factor * reflection_color0)*(1-transparency_factor) + specular_color_transparency0;
-                                              color1 = (color1 + shininess_factor * reflection_color1)*(1-transparency_factor) + specular_color_transparency1;
-                                              color2 = (color2 + shininess_factor * reflection_color2)*(1-transparency_factor) + specular_color_transparency2;
-
-
-                                              //                                        color0 = (1 - transparency_factor) * color0 + pow(V_dot_R, 50) * specular_color[0] * light_intensity * light_color[0];
-                                              //                                        color1 = (1 - transparency_factor) * color1 + pow(V_dot_R, 50) *specular_color[1] * light_intensity * light_color[1];
-                                              //                                        color2 = (1 - transparency_factor) * color2 + pow(V_dot_R, 50) *specular_color[2] * light_intensity * light_color[2];
-
-                                      }
-//                                      else
-//                                      {
-//                                              color0 = color0 + shininess_factor * reflection_color0;
-//                                              color1 = color1 + shininess_factor * reflection_color1;
-//                                              color2 = color2 + shininess_factor * reflection_color2;
-//                                      }
-                              }
-                              if(object->material->transparency[0] > 0)
-                              {
-				      transparency_factor =  object->material->transparency[0];
-                                      if(ray.dot(normal) < 0)
-                                      {
-                                              this->refract(ray, normal, Eta, refraction_ray);
-                                              SbVec3f refraction_ray_normal = *refraction_ray;
-                                              refraction_ray_normal.normalize();
-                                              SbVec3f *refraction_color = new SbVec3f(0, 0, 0);                                     
-                                              this->rt(refraction_ray_normal, point_on_sphere + EPSLON * refraction_ray_normal, scene, transform_list, refraction_color, recursion_depth + 1, shadow_on, reflection_on, RAY_INSIDE);
-                                              float refraction_color0 = 0;
-                                              float refraction_color1 = 0;
-                                              float refraction_color2 = 0;
-                                              refraction_color->getValue(refraction_color0, refraction_color1, refraction_color2);
-                                              color0 = color0 + transparency_factor * refraction_color0;
-                                              color1 = color1 + transparency_factor * refraction_color1;
-                                              color2 = color2 + transparency_factor * refraction_color2;
-//                                              color0 = color0 + (1-transparency_factor)*reflection_color0_total+transparency_factor * refraction_color0;
-//                                              color1 = color1 + (1-transparency_factor)*reflection_color1_total+transparency_factor * refraction_color1;
-//                                              color2 = color2 + (1-transparency_factor)*reflection_color2_total+transparency_factor * refraction_color2;
-                                              cosine_value = (-1) * normal.dot(ray);
-                                      }
-                                      else
-                                      {
-					      SbVec3f normal_neg = normal;
-                                              normal_neg.negate();
-                                              if(True == this->refract(ray, normal_neg, 1/Eta, refraction_ray))
-                                              //if(True == this->refract(ray, normal, 1/Eta, refraction_ray))
+                                              if(ray.dot(normal) < 0)
                                               {
+                                                      this->refract(ray, normal, Eta, refraction_ray);
                                                       SbVec3f refraction_ray_normal = *refraction_ray;
                                                       refraction_ray_normal.normalize();
                                                       SbVec3f *refraction_color = new SbVec3f(0, 0, 0);                                     
-                                                      this->rt(refraction_ray_normal, point_on_sphere + EPSLON * refraction_ray_normal, scene, transform_list, refraction_color, recursion_depth + 1, shadow_on, reflection_on, RAY_OUTSIDE);
-                                                      refraction_color0 = 0;
-                                                      refraction_color1 = 0;
-                                                      refraction_color2 = 0;
-						      refraction_color->getValue(refraction_color0, refraction_color1, refraction_color2);
-                                                      cosine_value = refraction_ray_normal.dot(normal);
-						      color0 = color0 + transparency_factor * refraction_color0;
-						      color1 = color1 + transparency_factor * refraction_color1;
-						      color2 = color2 + transparency_factor * refraction_color2;
-
-                                              }
-                                              else 
-                                              {
-                                                      
-                                                      SbVec3f *refraction_color = new SbVec3f(0, 0, 0);                                     
-                                                      refraction_color0 = 0;
-                                                      refraction_color1 = 0;
-                                                      refraction_color2 = 0;
-//                                                      cosine_value = 0;
-						      ONLY_REFLECTION = True;
+                                                      this->rt(refraction_ray_normal, point_on_sphere + EPSLON * refraction_ray_normal, scene, transform_list, refraction_color, recursion_depth + 1, shadow_on, reflection_on, refraction_on, RAY_INSIDE);
+                                                      float refraction_color0 = 0;
+                                                      float refraction_color1 = 0;
+                                                      float refraction_color2 = 0;
+                                                      refraction_color->getValue(refraction_color0, refraction_color1, refraction_color2);
                                                       color0 = color0 + transparency_factor * refraction_color0;
-						      color1 = color1 + transparency_factor * refraction_color1;
+                                                      color1 = color1 + transparency_factor * refraction_color1;
                                                       color2 = color2 + transparency_factor * refraction_color2;
-      
+                                                      cosine_value = (-1) * normal.dot(ray);
                                               }
-                                      }
+                                              else
+                                              {
+                                                      SbVec3f normal_neg = normal;
+                                                      normal_neg.negate();
+                                                      if(True == this->refract(ray, normal_neg, 1/Eta, refraction_ray))
+                                                      {
+                                                              SbVec3f refraction_ray_normal = *refraction_ray;
+                                                              refraction_ray_normal.normalize();
+                                                              SbVec3f *refraction_color = new SbVec3f(0, 0, 0);                                     
+                                                              this->rt(refraction_ray_normal, point_on_sphere + EPSLON * refraction_ray_normal, scene, transform_list, refraction_color, recursion_depth + 1, shadow_on, reflection_on, refraction_on, RAY_OUTSIDE);
+                                                              refraction_color0 = 0;
+                                                              refraction_color1 = 0;
+                                                              refraction_color2 = 0;
+                                                              refraction_color->getValue(refraction_color0, refraction_color1, refraction_color2);
+                                                              cosine_value = refraction_ray_normal.dot(normal);
+                                                              color0 = color0 + transparency_factor * refraction_color0;
+                                                              color1 = color1 + transparency_factor * refraction_color1;
+                                                              color2 = color2 + transparency_factor * refraction_color2;
 
+                                                      }
+                                                      else 
+                                                      {
+
+                                                              SbVec3f *refraction_color = new SbVec3f(0, 0, 0);                                     
+                                                              refraction_color0 = 0;
+                                                              refraction_color1 = 0;
+                                                              refraction_color2 = 0;
+                                                              //                                                      cosine_value = 0;
+                                                              ONLY_REFLECTION = True;
+                                                              color0 = color0 + transparency_factor * refraction_color0;
+                                                              color1 = color1 + transparency_factor * refraction_color1;
+                                                              color2 = color2 + transparency_factor * refraction_color2;
+
+                                                      }//only reflection
+                                              }//refraction outside
+                                        }//end refraction
                               }
                       }
               }
@@ -502,6 +515,7 @@ int MyRayTracer::is_in_shadow(SbVec3f intersect_point, SbVec3f light_vector, SbV
         SbVec3f Ray = light_location - P;
         Ray.normalize();
         SbVec3f intersect_normal;
+        float distance_length = FAR;
 
 
         int is_intersect = -1;
@@ -530,22 +544,22 @@ int MyRayTracer::is_in_shadow(SbVec3f intersect_point, SbVec3f light_vector, SbV
 				}
                         }
                 }
-                if(shape_type == SoCube::getClassTypeId()) 
-                {
-//                        SoCube *cube = (SoCube*)(object->shape);
-                        SoCube *cube = new SoCube();                        
-                        SbVec3f cube_point_intersect = *point_intersect;
-                        SbMatrix transform_matrix = *(transform_list+i);
-                        float distance_length = this->cube_intersect(Ray, P, cube, transform_matrix, cube_point_intersect, intersect_normal);
-                        if(distance_length < FAR) 
-                        {
-				if(object->material->transparency[0] <= 0)
-				{
-					in_shadow = 1;
-					break;
-				}
-                        }
-                }
+//                else if(shape_type == SoCube::getClassTypeId()) 
+//                {
+////                        SoCube *cube = (SoCube*)(object->shape);
+//                        SoCube *cube = new SoCube();                        
+//                        SbVec3f cube_point_intersect = *point_intersect;
+//                        SbMatrix transform_matrix = *(transform_list+i);
+//                        distance_length = this->cube_intersect(Ray, P, cube, transform_matrix, cube_point_intersect, intersect_normal);
+//                        if(distance_length < FAR) 
+//                        {
+//				if(object->material->transparency[0] <= 0)
+//				{
+//					in_shadow = 1;
+//					break;
+//				}
+//                        }
+//                }
 
         }
 

@@ -12,15 +12,16 @@ make -f Makefile.linux
 #./rt refraction3.iv refraction3.ppm 500 500 1 1
 
 shadow=$1
-refraction=$2
-./rt refraction1.iv refraction1.ppm 500 500 $shadow $refraction 
-./rt refraction1.iv refraction1.ppm 500 500 $shadow $refraction
-./rt refraction2.iv refraction2.ppm 500 500 $shadow $refraction
-./rt refraction3.iv refraction3.ppm 500 500 $shadow $refraction
+reflection=$2
+refraction=$3
+./rt refraction1.iv refraction1.ppm 500 500 $shadow $reflection $refraction 
+./rt refraction1.iv refraction1.ppm 500 500 $shadow $reflection $refraction
+./rt refraction2.iv refraction2.ppm 500 500 $shadow $reflection $refraction
+./rt refraction3.iv refraction3.ppm 500 500 $shadow $reflection $refraction
 
-./rt cubesphere3.iv cubesphere3.ppm 500 500 $shadow $refraction
-./rt cubesphere4.iv cubesphere4.ppm 500 500 $shadow $refraction
-./rt cubesphere5.iv cubesphere5.ppm 500 500 $shadow $refraction
+./rt cubesphere3.iv cubesphere3.ppm 500 500 $shadow $reflection $refraction
+./rt cubesphere4.iv cubesphere4.ppm 500 500 $shadow $reflection $refraction
+./rt cubesphere5.iv cubesphere5.ppm 500 500 $shadow $reflection $refraction
 #./rt cube1.iv cube1.ppm 500 500 1 0
 #./rt cubesphere.iv cubesphere.ppm 500 500 1 0
 
