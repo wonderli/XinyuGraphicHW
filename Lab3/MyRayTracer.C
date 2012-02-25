@@ -608,7 +608,9 @@ float MyRayTracer::cube_intersect(SbVec3f ray, SbVec3f eye, SoCube *cube, SbMatr
         SbVec3f object_inter_normal(0, 0, 0);
         inverse_matrix.multVecMatrix(eye, object_eye); // Transform Eye coordinate
         inverse_matrix.multDirMatrix(ray, object_ray); // Transform Ray direction
+
         object_ray.normalize();
+
         float width = cube->width.getValue();
         float height = cube->height.getValue();
         float depth = cube->height.getValue();
@@ -697,8 +699,10 @@ float MyRayTracer::cube_intersect(SbVec3f ray, SbVec3f eye, SoCube *cube, SbMatr
                 {
                         object_inter_normal.setValue(0, 0, 1);
                 }
+
                 transform_matrix.multVecMatrix(object_point, point);
                 transform_matrix.multDirMatrix(object_inter_normal, inter_normal);
+
                 inter_normal.normalize();
                 SbVec3f distance_vec = eye - point;
                 distance = distance_vec.length();           
