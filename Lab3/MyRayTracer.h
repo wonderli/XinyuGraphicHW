@@ -24,7 +24,7 @@ using namespace std;
 #ifndef FAR
 #define FAR 1e10
 #endif
-#define EPSLON 0.01
+#define EPSLON 0.001
 #define MAXRECURSION 3
 #define True 1
 #define False -1
