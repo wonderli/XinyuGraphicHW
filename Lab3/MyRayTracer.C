@@ -603,7 +603,7 @@ int MyRayTracer::is_in_shadow(SbVec3f intersect_point, SbVec3f light_vector, SbV
 	{
 		in_shadow = 1;
 	}
-	else
+	else if((transparency_factor > 0) && (transparency_factor < 1))
 		in_shadow = -1;
 
         return in_shadow;
@@ -615,7 +615,6 @@ int MyRayTracer::refract(SbVec3f d, SbVec3f n, float Eta, SbVec3f *t)
         SbVec3f d_neg = d;
         d_neg.negate();
         float N_dot_V = n.dot(d_neg);
-	//        float N_dot_V = n.dot(d);
         float under_sqrt = 1 - Eta*Eta*(1 - N_dot_V*N_dot_V);
         if(under_sqrt >= 0)
         {
@@ -654,14 +653,14 @@ float MyRayTracer::cube_intersect(SbVec3f ray, SbVec3f eye, SoCube *cube, SbMatr
         SbVec3f low(0, 0, 0);
         SbVec3f high(0, 0, 0);
 
-        //low.setValue((-1)*width/2, (-1)*height/2, (-1)*depth/2);
-        //high.setValue(width/2, height/2, depth/2);
-	low[0] = (-1)*width/2;
-	low[1] = (-1)*height/2;
-	low[2] = (-1)*depth/2;
-	high[0] = width/2;
-	high[1] = height/2;
-	high[2] = depth/2;
+        low.setValue((-1)*width/2, (-1)*height/2, (-1)*depth/2);
+        high.setValue(width/2, height/2, depth/2);
+//	low[0] = (-1)*width/2;
+//	low[1] = (-1)*height/2;
+//	low[2] = (-1)*depth/2;
+//	high[0] = width/2;
+//	high[1] = height/2;
+//	high[2] = depth/2;
 	
         float t1;
         float t2;
@@ -746,15 +745,37 @@ float MyRayTracer::cube_intersect(SbVec3f ray, SbVec3f eye, SoCube *cube, SbMatr
                 {
                         object_inter_normal.setValue(0, 0, 1);
                 }
-
+//                if(fabs(object_point[0] + EPSLON - low[0]) < ZERO)
+//                {
+//                        object_inter_normal.setValue(-1, 0, 0);
+//                }
+//                else if(fabs(object_point[0] + EPSLON - high[0]) < ZERO)
+//                {
+//                        object_inter_normal.setValue(1, 0, 0);
+//                }
+//                else if(fabs(object_point[1] + EPSLON - low[1]) < ZERO)
+//                {
+//                        object_inter_normal.setValue(0, -1, 0);
+//                }
+//                else if(fabs(object_point[1] + EPSLON - high[1]) < ZERO)
+//                {
+//                        object_inter_normal.setValue(0, 1, 0);
+//                }
+//                else if(fabs(object_point[2] + EPSLON - low[2]) < ZERO)
+//                {
+//                        object_inter_normal.setValue(0, 0, -1);                
+//                }
+//                else if(fabs(object_point[2] + EPSLON - high[2]) < ZERO)
+//                {
+//                        object_inter_normal.setValue(0, 0, 1);
+//                }
+//
                 transform_matrix.multVecMatrix(object_point, point);
                 transform_matrix.multDirMatrix(object_inter_normal, inter_normal);
 
                 inter_normal.normalize();
                 SbVec3f distance_vec = eye - point;
                 distance = distance_vec.length();           
-                if(distance < -FAR)
-                distance = FAR;
         }
         else
         {
