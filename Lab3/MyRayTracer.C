@@ -159,6 +159,7 @@ int MyRayTracer::sphere_intersect(SbVec3f ray, SbVec3f eye, SbSphere sphere, SbV
 
                         SbVec3f *refraction_ray = new SbVec3f(0, 0, 0);
 			//SbVec3f *refraction_color = new SbVec3f(0, 0, 0);                                     
+                        float light_transparency_factor = 0;
 
                         for (i = 0; i < length; i++)
                         {
@@ -188,7 +189,7 @@ int MyRayTracer::sphere_intersect(SbVec3f ray, SbVec3f eye, SbSphere sphere, SbV
                                 {
                                         SoCube *cube = (SoCube*)(object->shape);
                                         distance_length = this->cube_intersect(ray, eye, cube, transform_list[i], point_on_object, intersect_normal);
-                                        cout<<"DISTANCE LENGTH"<<distance_length<<endl;
+                                        //cout<<"DISTANCE LENGTH"<<distance_length<<endl;
                                         *point_intersect = point_on_object; 
 					intersect_normal.normalize();
 
@@ -214,6 +215,9 @@ int MyRayTracer::sphere_intersect(SbVec3f ray, SbVec3f eye, SbSphere sphere, SbV
                         {
                                 normal.negate();
                         }
+
+                        float t1 = EPSLON;
+                        float t2;
                         for(i = 0; i < length; i++) 
                         {
                                 light = (SoLight *)scene->Lights[i];
@@ -232,10 +236,13 @@ int MyRayTracer::sphere_intersect(SbVec3f ray, SbVec3f eye, SbSphere sphere, SbV
                                                 light_color = point_light->color.getValue();                                
                                         }
                                         light_vector = point_on_object - light_location; 
+
+                                        t2 = light_vector.length();
+
                                         light_vector.normalize();
                                         SbVec3f reflect_light_vector = light_vector;
                                         light_vector.negate();
-                                        //reflection_ray = (-2) * light_vector.dot(normal) * normal + light_vector;
+
                                         float N_dot_L = normal.dot(light_vector);
                                         SbVec3f V = ray;
                                         V.normalize();
@@ -244,12 +251,13 @@ int MyRayTracer::sphere_intersect(SbVec3f ray, SbVec3f eye, SbSphere sphere, SbV
                                         R = 2 * N_dot_L * normal - light_vector;
                                         R.normalize();
                                         float V_dot_R = V.dot(R);
-                                        //object = (OSUObjectData *)scene->Objects[min_index];
                                         object = closest_object;
                                         shininess_factor = object->material->shininess[0];
                                         
+                                        transparency_factor = object->material->transparency[0];//Transparency
+
+                                        
                                         /*ambient color*/
-					//if(object->material->ambientColor[0][0]!= NULL)
 					if(object->material->ambientColor[0][0] >= 0)
 					{
 						float ambient_color0 = object->material->ambientColor[0][0];
@@ -274,18 +282,39 @@ int MyRayTracer::sphere_intersect(SbVec3f ray, SbVec3f eye, SbSphere sphere, SbV
 
                                                 }else 
                                                 {
-                                                        is_inshadow = is_in_shadow(point_on_object, light_vector,  light_location, scene, transform_list);                             
-                                                        /* in shadow */
-                                                        if(is_inshadow == True)
+ //                                                       is_inshadow = is_in_shadow(point_on_object, light_vector,  light_location, scene, transform_list);                             
+ //                                                       /* in shadow */
+ //                                                       if(is_inshadow == True)
+ //                                                       {
+ //                                                               ambient_color.setValue(0, 0, 0);
+ //                                                               //ambient_color.setValue(0.1, 0.1, 0.1);
+ //                                                               diffuse_color.setValue(0, 0, 0);
+ //                                                               specular_color.setValue(0, 0, 0);
+ //                                                       }
+ //                                                       else if(is_inshadow == False)
+ //                                                       {
+
+ //                                                               float diffuse_color0 = object->material->diffuseColor[0][0];
+ //                                                               float diffuse_color1 = object->material->diffuseColor[0][1];
+ //                                                               float diffuse_color2 = object->material->diffuseColor[0][2];
+ //                                                               diffuse_color.setValue(diffuse_color0, diffuse_color1, diffuse_color2);
+
+ //                                                               float specular_color0 = object->material->specularColor[0][0];
+ //                                                               float specular_color1 = object->material->specularColor[0][1];
+ //                                                               float specular_color2 = object->material->specularColor[0][2];
+ //                                                               specular_color.setValue(specular_color0, specular_color1, specular_color2);
+
+ //                                                       }
+
+                                                        light_transparency_factor = this->object_in_path(point_on_object, light_vector, light_location, transform_list, scene, t1, t2);
+                                                        if(transparency_factor <= ZERO)
                                                         {
                                                                 ambient_color.setValue(0, 0, 0);
-                                                                //ambient_color.setValue(0.1, 0.1, 0.1);
                                                                 diffuse_color.setValue(0, 0, 0);
                                                                 specular_color.setValue(0, 0, 0);
                                                         }
-                                                        else if(is_inshadow == False)
-                                                        {
-
+                                                        else
+                                                        {  
                                                                 float diffuse_color0 = object->material->diffuseColor[0][0];
                                                                 float diffuse_color1 = object->material->diffuseColor[0][1];
                                                                 float diffuse_color2 = object->material->diffuseColor[0][2];
@@ -295,17 +324,17 @@ int MyRayTracer::sphere_intersect(SbVec3f ray, SbVec3f eye, SbSphere sphere, SbV
                                                                 float specular_color1 = object->material->specularColor[0][1];
                                                                 float specular_color2 = object->material->specularColor[0][2];
                                                                 specular_color.setValue(specular_color0, specular_color1, specular_color2);
-
                                                         }
+
                                                 }
 
                                         }
                                         else if(shadow_on == 0)
                                         {
-                                                if (N_dot_L < 0)
+//                                                if (N_dot_L < 0)
+                                                if (N_dot_L < ZERO)
                                                 {
                                                         ambient_color.setValue(0, 0, 0);
-                                                        //ambient_color.setValue(0.1, 0.1, 0.1);
                                                         diffuse_color.setValue(0, 0, 0);
                                                         specular_color.setValue(0, 0, 0);
 
@@ -328,11 +357,11 @@ int MyRayTracer::sphere_intersect(SbVec3f ray, SbVec3f eye, SbSphere sphere, SbV
                                 /* Color calculate*/
 				if(refraction_on == True)
 				{
-					if(object->material->transparency[0] >= 0)
-					{
-						transparency_factor =  object->material->transparency[0];
-					}
-					if(transparency_factor > 0)
+//					if(object->material->transparency[0] >= 0)
+//					{
+//						transparency_factor =  object->material->transparency[0];
+//					}
+					if(transparency_factor > ZERO)
 					{
 						color0 += 0.2 * ambient_color[0] + N_dot_L * diffuse_color[0] * light_intensity * light_color[0];
 						specular_color_transparency0 = pow(V_dot_R,50) * specular_color[0] * light_intensity * light_color[0];
@@ -382,126 +411,125 @@ int MyRayTracer::sphere_intersect(SbVec3f ray, SbVec3f eye, SbSphere sphere, SbV
 
               }                
 
-              /* Reflection */  
 
-              if(reflection_on == 1)
-              {
-                      if(recursion_depth < MAXRECURSION)
-                      {
-                              if(shininess_factor > 0) 
-                              {       
+if(recursion_depth < MAXRECURSION)
+{
+         /* Reflection */  
+        if(reflection_on == 1)
+        {
+                if(shininess_factor > 0) 
+                {       
 
-                                      reflection_ray = (-2) * ray.dot(normal) * normal + ray;
-                                      SbVec3f reflection_ray_normal = reflection_ray;
-                                      reflection_ray_normal.normalize();
-                                      SbVec3f *reflection_color = new SbVec3f(0, 0, 0);                                      
-                                      this->rt(reflection_ray_normal, point_on_object + EPSLON * reflection_ray_normal, scene, transform_list, reflection_color, recursion_depth + 1, shadow_on, reflection_on, refraction_on, 1);
-                                                                            
-                                      reflection_color->getValue(reflection_color0, reflection_color1, reflection_color2);
-//                                      color0 = color0 + shininess_factor * reflection_color0;
-//                                      color1 = color1 + shininess_factor * reflection_color1;
-//                                      color2 = color2 + shininess_factor * reflection_color2;
-                                      if(refraction_on == True)
-                                      {
-                                              if(object->material->transparency[0] > 0)
-                                              {
-                                                      transparency_factor =  object->material->transparency[0];
-                                              }
-                                              if(transparency_factor > 0)
-                                              {
-                                                      color0 = (color0 + shininess_factor * reflection_color0)*(1-transparency_factor) + specular_color_transparency0;
-                                                      color1 = (color1 + shininess_factor * reflection_color1)*(1-transparency_factor) + specular_color_transparency1;
-                                                      color2 = (color2 + shininess_factor * reflection_color2)*(1-transparency_factor) + specular_color_transparency2;
+                        reflection_ray = (-2) * ray.dot(normal) * normal + ray;
+                        SbVec3f reflection_ray_normal = reflection_ray;
+                        reflection_ray_normal.normalize();
+                        SbVec3f *reflection_color = new SbVec3f(0, 0, 0);                                      
+                        this->rt(reflection_ray_normal, point_on_object + EPSLON * reflection_ray_normal, scene, transform_list, reflection_color, recursion_depth + 1, shadow_on, reflection_on, refraction_on, ray_location);
 
-                                              }
-                                              else
-                                              { 
-                                                      color0 = color0 + shininess_factor * reflection_color0;
-                                                      color1 = color1 + shininess_factor * reflection_color1;
-                                                      color2 = color2 + shininess_factor * reflection_color2;
-                                              }
-                                      }
-                                      else
-                                      {                                      
-                                              color0 = color0 + shininess_factor * reflection_color0;
-                                              color1 = color1 + shininess_factor * reflection_color1;
-                                              color2 = color2 + shininess_factor * reflection_color2;
-                                      }
-                              }
-                              if(refraction_on == True)
-                              {
-                                      if(object->material->transparency[0] > 0)
-                                      {
-                                              transparency_factor =  object->material->transparency[0];
-                                              if(ray.dot(normal) < 0)
-                                              {
-                                                      this->refract(ray, normal, Eta, refraction_ray);
-                                                      SbVec3f refraction_ray_normal = *refraction_ray;
-                                                      refraction_ray_normal.normalize();
-                                                      //float test0 = 0;
-                                                      //float test1 = 0;
-                                                      //float test2 = 0;
-                                                      //point_on_object.getValue(test0, test1, test2);
-                                                      //cout<<"POINT_ON_OBJECT"<<"("<<test0<<","<<test1<<","<<test2<<")"<<endl;
-                                                      //SbVec3f test_point = point_on_object+EPSLON*refraction_ray_normal;
-                                                      //test_point.getValue(test0, test1, test2);
-                                                      //cout<<"POINT_REFRACTION_POINT"<<"("<<test0<<","<<test1<<","<<test2<<")"<<endl;
-                                                     
-                                                      SbVec3f *refraction_color = new SbVec3f(0, 0, 0); 
-                                                      this->rt(refraction_ray_normal, point_on_object + EPSLON * refraction_ray_normal, scene, transform_list, refraction_color, recursion_depth + 1, shadow_on, reflection_on, refraction_on, RAY_OUTSIDE);
-                                                      refraction_color->getValue(refraction_color0, refraction_color1, refraction_color2);
-                                                      color0 = color0 + transparency_factor * refraction_color0;
-                                                      color1 = color1 + transparency_factor * refraction_color1;
-                                                      color2 = color2 + transparency_factor * refraction_color2;
-                                                      //cosine_value = (-1) * normal.dot(ray);
-                                              }
-                                              else
-                                              {
-                                                      //SbVec3f normal_neg = normal;
-                                                      //normal_neg.negate();
-                                                      //if(True == this->refract(ray, normal_neg, 1/Eta, refraction_ray))
-                                                      if(True == this->refract(ray, normal, 1/Eta, refraction_ray))
-                                                      {
-                                                              SbVec3f refraction_ray_normal = *refraction_ray;
-                                                              refraction_ray_normal.normalize();
-                                                              SbVec3f *refraction_color = new SbVec3f(0, 0, 0);                                     
-                                                              this->rt(refraction_ray_normal, point_on_object + EPSLON * refraction_ray_normal, scene, transform_list, refraction_color, recursion_depth + 1, shadow_on, reflection_on, refraction_on, RAY_INSIDE);
-                                                              //float test0 = 0;
-                                                              //float test1 = 0;
-                                                              //float test2 = 0;
-                                                              //point_on_object.getValue(test0, test1, test2);
-                                                              //cout<<"POINT_ON_OBJECT"<<"("<<test0<<","<<test1<<","<<test2<<")"<<endl;
-                                                              //SbVec3f test_point = point_on_object+EPSLON*refraction_ray_normal;
-                                                              //test_point.getValue(test0, test1, test2);
-                                                              //cout<<"POINT_REFRACTION_POINT"<<"("<<test0<<","<<test1<<","<<test2<<")"<<endl;
+                        reflection_color->getValue(reflection_color0, reflection_color1, reflection_color2);
+                }
+                //                                      color0 = color0 + shininess_factor * reflection_color0;
+                //                                      color1 = color1 + shininess_factor * reflection_color1;
+                //                                      color2 = color2 + shininess_factor * reflection_color2;
+                if(refraction_on == True)
+                {
+                        //                                              if(object->material->transparency[0] > 0)
+                        //                                              {
+                        //                                                      transparency_factor =  object->material->transparency[0];
+                        //                                              }
+                        if(transparency_factor > ZERO)
+                        {
+                                color0 = (color0 + shininess_factor * reflection_color0)*(1-light_transparency_factor) + specular_color_transparency0;
+                                color1 = (color1 + shininess_factor * reflection_color1)*(1-light_transparency_factor) + specular_color_transparency1;
+                                color2 = (color2 + shininess_factor * reflection_color2)*(1-light_transparency_factor) + specular_color_transparency2;
+
+                        }
+                        else
+                        { 
+                                color0 = color0 + shininess_factor * reflection_color0;
+                                color1 = color1 + shininess_factor * reflection_color1;
+                                color2 = color2 + shininess_factor * reflection_color2;
+                        }
+                }
+                else
+                {                                      
+                        color0 = color0 + shininess_factor * reflection_color0;
+                        color1 = color1 + shininess_factor * reflection_color1;
+                        color2 = color2 + shininess_factor * reflection_color2;
+                }
+        }
+        if(refraction_on == True)
+        {
+                //if(object->material->transparency[0] > 0)
+                //{
+                //transparency_factor =  object->material->transparency[0];
+                //if(ray.dot(normal) < 0)
+                if(ray.dot(normal) < 0)
+                {
+                        this->refract(ray, normal, Eta, refraction_ray);
+                        SbVec3f refraction_ray_normal = *refraction_ray;
+                        refraction_ray_normal.normalize();
+                        //float test0 = 0;
+                        //float test1 = 0;
+                        //float test2 = 0;
+                        //point_on_object.getValue(test0, test1, test2);
+                        //cout<<"POINT_ON_OBJECT"<<"("<<test0<<","<<test1<<","<<test2<<")"<<endl;
+                        //SbVec3f test_point = point_on_object+EPSLON*refraction_ray_normal;
+                        //test_point.getValue(test0, test1, test2);
+                        //cout<<"POINT_REFRACTION_POINT"<<"("<<test0<<","<<test1<<","<<test2<<")"<<endl;
+
+                        SbVec3f *refraction_color = new SbVec3f(0, 0, 0); 
+                        this->rt(refraction_ray_normal, point_on_object + EPSLON * refraction_ray_normal, scene, transform_list, refraction_color, recursion_depth + 1, shadow_on, reflection_on, refraction_on, 1 - ray_location);
+                        refraction_color->getValue(refraction_color0, refraction_color1, refraction_color2);
+                        color0 = color0 + transparency_factor * refraction_color0;
+                        color1 = color1 + transparency_factor * refraction_color1;
+                        color2 = color2 + transparency_factor * refraction_color2;
+                        //cosine_value = (-1) * normal.dot(ray);
+                }
+                else
+                {
+                        //                                                      SbVec3f normal_neg = normal;
+                        //                                                      normal_neg.negate();
+                        //if(True == this->refract(ray, normal_neg, 1/Eta, refraction_ray))
+                        if(True == this->refract(ray, normal, 1/Eta, refraction_ray))
+                        {
+                                SbVec3f refraction_ray_normal = *refraction_ray;
+                                refraction_ray_normal.normalize();
+                                SbVec3f *refraction_color = new SbVec3f(0, 0, 0);                                     
+                                this->rt(refraction_ray_normal, point_on_object + EPSLON * refraction_ray_normal, scene, transform_list, refraction_color, recursion_depth + 1, shadow_on, reflection_on, refraction_on, 1 - ray_location);
+                                //float test0 = 0;
+                                //float test1 = 0;
+                                //float test2 = 0;
+                                //point_on_object.getValue(test0, test1, test2);
+                                //cout<<"POINT_ON_OBJECT"<<"("<<test0<<","<<test1<<","<<test2<<")"<<endl;
+                                //SbVec3f test_point = point_on_object+EPSLON*refraction_ray_normal;
+                                //test_point.getValue(test0, test1, test2);
+                                //cout<<"POINT_REFRACTION_POINT"<<"("<<test0<<","<<test1<<","<<test2<<")"<<endl;
 
 
 
-                                                              refraction_color->getValue(refraction_color0, refraction_color1, refraction_color2);
-                                                              cosine_value = refraction_ray_normal.dot(normal);
-                                                              color0 = color0 + transparency_factor * refraction_color0;
-                                                              color1 = color1 + transparency_factor * refraction_color1;
-                                                              color2 = color2 + transparency_factor * refraction_color2;
+                                refraction_color->getValue(refraction_color0, refraction_color1, refraction_color2);
+                                cosine_value = refraction_ray_normal.dot(normal);
+                                color0 = color0 + transparency_factor * refraction_color0;
+                                color1 = color1 + transparency_factor * refraction_color1;
+                                color2 = color2 + transparency_factor * refraction_color2;
 
-                                                      }
-                                                      else 
-                                                      {
+                        }
+                        else 
+                        {
 
-                                                              SbVec3f *refraction_color = new SbVec3f(0, 0, 0);                                     
-                                                              //refraction_color0 = 0;
-                                                              //refraction_color1 = 0;
-                                                              //refraction_color2 = 0;
-                                                              ONLY_REFLECTION = True;
-                                                              color0 = color0 + transparency_factor * refraction_color0;
-                                                              color1 = color1 + transparency_factor * refraction_color1;
-                                                              color2 = color2 + transparency_factor * refraction_color2;
+                                SbVec3f *refraction_color = new SbVec3f(0, 0, 0);                                     
+                                ONLY_REFLECTION = True;
+                                color0 = color0 + transparency_factor * refraction_color0;
+                                color1 = color1 + transparency_factor * refraction_color1;
+                                color2 = color2 + transparency_factor * refraction_color2;
 
-                                                      }//only reflection
-                                              }//refraction outside
-                                        }//end refraction
-                              }
-                      }
-              }
+                        }//only reflection
+                }//refraction outside
+//}//end refraction
+}
+}
+//}
               
 
 
@@ -524,91 +552,91 @@ int MyRayTracer::sphere_intersect(SbVec3f ray, SbVec3f eye, SbSphere sphere, SbV
 
 
 
-int MyRayTracer::is_in_shadow(SbVec3f intersect_point, SbVec3f light_vector, SbVec3f light_location, OSUInventorScene *scene, SbMatrix *transform_list)
-{
-
-        int in_shadow = -1;
-        int i = 0;
-        int length = scene->Objects.getLength();
-        OSUObjectData *object = NULL;
-        SbVec3f *point_intersect = new SbVec3f();
-        SoType shape_type;
-        SbVec3f center(0, 0, 0);
-        SbVec3f center_new(0, 0, 0);
-        SbVec3f center_min(0, 0, 0);
-        SbVec3f scale_vector;
-        float radius = 0;
-        light_vector.normalize();
-        light_vector.negate();
-        //float EPSLON = 1e-3;
-        //SbVec3f P = intersect_point + EPSLON * light_vector;
-        SbVec3f P = intersect_point;
-        SbVec3f Ray = light_location - P;
-
-        Ray.normalize();
-        SbVec3f intersect_normal(0, 0, 0);
-        float distance_length = FAR;
-
-
-        int is_intersect = -1;
-	int transparency_factor = 1;
-
-        for (i = 0; i < length; i++)
-        {
-                object = (OSUObjectData *)scene->Objects[i];
-                shape_type = object->shape->getTypeId();
-                if(shape_type == SoSphere::getClassTypeId()) 
-                {
-                        center.setValue(0, 0, 0);
-                        transform_list[i].multVecMatrix(center, center_new);
-                        scale_vector = object->transformation->scaleFactor.getValue();
-                        radius = scale_vector[0];
-                        SbSphere *sphere = new SbSphere(center_new, radius);
-                        SbVec3f normal = P - center_new;
-                        normal.normalize();
-                        float angle = normal.dot(Ray);
-                        is_intersect = this->sphere_intersect(Ray, P, *sphere, point_intersect);
-                        if(is_intersect == 1) 
-                        {
-				if(object->material->transparency[0] <= 0)
-				{
-					in_shadow = 1;
-					transparency_factor *= 0;
-					//break;
-				}
-				else
-					transparency_factor *= object->material->transparency[0];
-                        }
-                }
-                else if(shape_type == SoCube::getClassTypeId()) 
-                {
-                        SoCube *cube = new SoCube();                        
-                        SbVec3f cube_point_intersect = *point_intersect;
-                        distance_length = this->cube_intersect(Ray, P, cube, transform_list[i], cube_point_intersect, intersect_normal);
-                        if(distance_length != FAR) 
-                        {
-				//if(object->material->transparency[0] == 0||object->material->transparency[0] != NULL) 
-				if(object->material->transparency[0] <= 0) 
-				{
-					in_shadow = 1;
-					transparency_factor *= 0;
-					//break;
-				}
-				else
-					transparency_factor *= object->material->transparency[0];
-                        }
-                }
-        }
-	if(transparency_factor == 0)
-	{
-		in_shadow = 1;
-	}
-	else if((transparency_factor > 0) && (transparency_factor < 1))
-		in_shadow = -1;
-
-        return in_shadow;
-
-}
+//int MyRayTracer::is_in_shadow(SbVec3f intersect_point, SbVec3f light_vector, SbVec3f light_location, OSUInventorScene *scene, SbMatrix *transform_list)
+//{
+//
+//        int in_shadow = -1;
+//        int i = 0;
+//        int length = scene->Objects.getLength();
+//        OSUObjectData *object = NULL;
+//        SbVec3f *point_intersect = new SbVec3f();
+//        SoType shape_type;
+//        SbVec3f center(0, 0, 0);
+//        SbVec3f center_new(0, 0, 0);
+//        SbVec3f center_min(0, 0, 0);
+//        SbVec3f scale_vector;
+//        float radius = 0;
+//        light_vector.normalize();
+//        light_vector.negate();
+//        //float EPSLON = 1e-3;
+//        //SbVec3f P = intersect_point + EPSLON * light_vector;
+//        SbVec3f P = intersect_point;
+//        SbVec3f Ray = light_location - P;
+//
+//        Ray.normalize();
+//        SbVec3f intersect_normal(0, 0, 0);
+//        float distance_length = FAR;
+//
+//
+//        int is_intersect = -1;
+//	int transparency_factor = 1;
+//
+//        for (i = 0; i < length; i++)
+//        {
+//                object = (OSUObjectData *)scene->Objects[i];
+//                shape_type = object->shape->getTypeId();
+//                if(shape_type == SoSphere::getClassTypeId()) 
+//                {
+//                        center.setValue(0, 0, 0);
+//                        transform_list[i].multVecMatrix(center, center_new);
+//                        scale_vector = object->transformation->scaleFactor.getValue();
+//                        radius = scale_vector[0];
+//                        SbSphere *sphere = new SbSphere(center_new, radius);
+//                        SbVec3f normal = P - center_new;
+//                        normal.normalize();
+//                        float angle = normal.dot(Ray);
+//                        is_intersect = this->sphere_intersect(Ray, P, *sphere, point_intersect);
+//                        if(is_intersect == 1) 
+//                        {
+//				if(object->material->transparency[0] <= 0)
+//				{
+//					in_shadow = 1;
+//					transparency_factor *= 0;
+//					//break;
+//				}
+//				else
+//					transparency_factor *= object->material->transparency[0];
+//                        }
+//                }
+//                else if(shape_type == SoCube::getClassTypeId()) 
+//                {
+//                        SoCube *cube = new SoCube();                        
+//                        SbVec3f cube_point_intersect = *point_intersect;
+//                        distance_length = this->cube_intersect(Ray, P, cube, transform_list[i], cube_point_intersect, intersect_normal);
+//                        if(distance_length != FAR) 
+//                        {
+//				//if(object->material->transparency[0] == 0||object->material->transparency[0] != NULL) 
+//				if(object->material->transparency[0] <= 0) 
+//				{
+//					in_shadow = 1;
+//					transparency_factor *= 0;
+//					//break;
+//				}
+//				else
+//					transparency_factor *= object->material->transparency[0];
+//                        }
+//                }
+//        }
+//	if(transparency_factor == 0)
+//	{
+//		in_shadow = 1;
+//	}
+//	else if((transparency_factor > 0) && (transparency_factor < 1))
+//		in_shadow = -1;
+//
+//        return in_shadow;
+//
+//}
 
 int MyRayTracer::refract(SbVec3f d, SbVec3f n, float Eta, SbVec3f *t)
 {
@@ -655,13 +683,7 @@ float MyRayTracer::cube_intersect(SbVec3f ray, SbVec3f eye, SoCube *cube, SbMatr
 
         low.setValue((-1)*width/2, (-1)*height/2, (-1)*depth/2);
         high.setValue(width/2, height/2, depth/2);
-//	low[0] = (-1)*width/2;
-//	low[1] = (-1)*height/2;
-//	low[2] = (-1)*depth/2;
-//	high[0] = width/2;
-//	high[1] = height/2;
-//	high[2] = depth/2;
-	
+
         float t1;
         float t2;
 
@@ -745,31 +767,6 @@ float MyRayTracer::cube_intersect(SbVec3f ray, SbVec3f eye, SoCube *cube, SbMatr
                 {
                         object_inter_normal.setValue(0, 0, 1);
                 }
-//                if(fabs(object_point[0] + EPSLON - low[0]) < ZERO)
-//                {
-//                        object_inter_normal.setValue(-1, 0, 0);
-//                }
-//                else if(fabs(object_point[0] + EPSLON - high[0]) < ZERO)
-//                {
-//                        object_inter_normal.setValue(1, 0, 0);
-//                }
-//                else if(fabs(object_point[1] + EPSLON - low[1]) < ZERO)
-//                {
-//                        object_inter_normal.setValue(0, -1, 0);
-//                }
-//                else if(fabs(object_point[1] + EPSLON - high[1]) < ZERO)
-//                {
-//                        object_inter_normal.setValue(0, 1, 0);
-//                }
-//                else if(fabs(object_point[2] + EPSLON - low[2]) < ZERO)
-//                {
-//                        object_inter_normal.setValue(0, 0, -1);                
-//                }
-//                else if(fabs(object_point[2] + EPSLON - high[2]) < ZERO)
-//                {
-//                        object_inter_normal.setValue(0, 0, 1);
-//                }
-//
                 transform_matrix.multVecMatrix(object_point, point);
                 transform_matrix.multDirMatrix(object_inter_normal, inter_normal);
 
@@ -782,4 +779,72 @@ float MyRayTracer::cube_intersect(SbVec3f ray, SbVec3f eye, SoCube *cube, SbMatr
                 distance = FAR;
         }
         return distance;
+}
+
+
+
+
+
+
+
+
+float MyRayTracer::object_in_path(SbVec3f intersect_point, SbVec3f light_vec, SbVec3f light_location, SbMatrix *transform_list, OSUInventorScene *scene,float t1, float t2)
+{	
+        int i;
+	SoType 	shapeType;
+	OSUObjectData *object = NULL;
+	SbVec3f distance;
+        float transparency = 1;
+	SbVec3f	Point;
+        SbVec3f normal;	
+        SbVec3f scale_vector;
+        float radius;
+        SbVec3f center(0,0,0);
+        SbVec3f center_new(0,0,0);
+        SbVec3f P = intersect_point;
+        SbVec3f Ray = light_location - P;
+        int is_intersect = -1;
+        float distance_length = FAR;
+        SbVec3f *point_intersect = &intersect_point;
+        SbVec3f intersect_normal(0,0,0);
+
+	for (i = 0; i < scene->Objects.getLength(); i++) 
+	{
+		object = (OSUObjectData *)scene->Objects[i];
+	   	shapeType = object->shape->getTypeId();
+	   	
+		if(shapeType == SoSphere::getClassTypeId())
+		{   		
+			SoSphere *Sphere = (SoSphere*)(object->shape);
+                        center.setValue(0, 0, 0);
+                        transform_list[i].multVecMatrix(center, center_new);
+                        scale_vector = object->transformation->scaleFactor.getValue();
+                        radius = scale_vector[0];
+                        SbSphere *sphere = new SbSphere(center_new, radius);
+                        is_intersect = this->sphere_intersect(Ray, light_location, *sphere, point_intersect);
+                        if(is_intersect == True) 
+                        {
+                                distance = light_location - *point_intersect;
+                                distance_length = distance.length();
+                                intersect_normal = *point_intersect - center_new;
+                                intersect_normal.normalize();
+
+                        } else
+                        distance_length = FAR;
+                }
+		
+		else if(shapeType == SoCube::getClassTypeId())
+		{
+			SoCube *cube = (SoCube*)(object->shape);
+                        distance_length = cube_intersect(Ray, light_location, cube, transform_list[i], intersect_point, normal);
+                }
+		
+		if (distance_length > t1 && distance_length < t2)
+		{
+			transparency *= object->material->transparency[0];
+		}
+
+	}
+	return transparency;
+	
 }
