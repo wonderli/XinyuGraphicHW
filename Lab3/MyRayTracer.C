@@ -245,7 +245,7 @@ int MyRayTracer::sphere_intersect(SbVec3f ray, SbVec3f eye, SbSphere sphere, SbV
 
 
                                         //SoftShadow
-//                                        this->coordinate_gen(light_vector, u, v, w);
+                                        this->coordinate_gen(light_vector, u, v, w);
                                         int hits;
                                         int m, n;
                                         int light_area = 2;
