@@ -13,6 +13,7 @@ refraction=$4
 ./rt cubesphere3.iv cubesphere3.ppm $size $size $shadow $reflection $refraction
 ./rt cubesphere4.iv cubesphere4.ppm $size $size $shadow $reflection $refraction
 ./rt cubesphere5.iv cubesphere5.ppm $size $size $shadow $reflection $refraction
+./rt sphereCycloid.iv sphereCycloid.ppm $size $size $shadow $reflection $refraction
 
 #./rt cube1.iv cube1.ppm 500 500 $shadow $reflection $refraction
 #./rt cubesphere.iv cubesphere.ppm 500 500 1 0 $shadow $reflection $refraction
