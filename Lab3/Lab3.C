@@ -41,11 +41,11 @@ using namespace std;
 */
 
 void usage_error() {
-	cerr << "Usage: rt <input.iv> <output.ppm> <xres> <yres> <shadow_flag> <reflection_on> <refraction_on>" << endl;
+	cerr << "Usage: rt <input.iv> <output.ppm> <xres> <yres> <shadow_flag> <reflection_on> <refraction_on> <depth_of_field_on>" << endl;
 	exit(10);
 }
 int main(int argc, char **argv) {
-	if (argc < 8)
+	if (argc < 9)
 		usage_error();
 	SoDB::init();
         int length;
@@ -168,6 +168,7 @@ int main(int argc, char **argv) {
         int shadow_on = atoi(argv[5]);
         int reflection_on = atoi(argv[6]);
         int refraction_on = atoi(argv[7]);
+        int depth_of_field_flag = atoi(argv[8]);
 
         int ray_location = RAY_OUTSIDE;
 
@@ -179,15 +180,18 @@ int main(int argc, char **argv) {
                 current = scanline_start;
 
                 for (pixel = 0; pixel < xres; pixel++) {
-                        ray = current - eye;
-                        ray.normalize();
+                        if(depth_of_field_flag == 0)
+                        {
+                                ray = current - eye;
+                                ray.normalize();
 
-//                        my_rt->rt //ray_trace(ray, eye, scene, transform_list, color);
-                        my_rt->rt(ray, eye, scene, transform_list, color, reflection_depth, refraction_depth, shadow_on, reflection_on, refraction_on, ray_location);
+                                //                        my_rt->rt //ray_trace(ray, eye, scene, transform_list, color);
+                                my_rt->rt(ray, eye, scene, transform_list, color, reflection_depth, refraction_depth, shadow_on, reflection_on, refraction_on, ray_location);
 
-                        r = (*color)[0];
-                        g = (*color)[1];
-                        b = (*color)[2];
+                                r = (*color)[0];
+                                g = (*color)[1];
+                                b = (*color)[2];
+                        }
 //                        color->getValue(r, g, b);
                         r = r * 255;
                         g = g * 255;
