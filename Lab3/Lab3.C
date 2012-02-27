@@ -170,75 +170,39 @@ int main(int argc, char **argv) {
         int refraction_on = atoi(argv[7]);
 
         int ray_location = RAY_OUTSIDE;
-        SbVec3f original_eye = eye;
 
         MyRayTracer *my_rt = new MyRayTracer(scene);
         /* Set scanline start begin at the left corner */
         scanline_start.setValue(upperleft_corner[0], upperleft_corner[1], upperleft_corner[2]);
-        float depth = 15;
         /* Begin to do the iterate */
         for(scanline = 0; scanline < yres; scanline++) {
                 current = scanline_start;
 
                 for (pixel = 0; pixel < xres; pixel++) {
-                        int ray_index = 0;
-                        float r = 1;
-                        SbVec3f ray_direction = pixel_center - original_eye;
-                        SbVec3f aimed_point = eye.setValue(camera_position[0], camera_position[1], camera_position[2]) + depth * ray_direction;
-                        for(ray_index = 0; ray_index < 25; ray_index++)                        
-                        {
-                                float du = rand()/float(RAND_MAX+1);
-                                float dv = rand()/float(RAND_MAX+1);
-                                SbVec3f start = eye.setValue(camera_position[0], camera_position[1], camera_position[2]) + (r*du - r/2) * u + (r*dv -r/2) *v;
-                                ray = aimed_point - start;
-                                ray.normalize();
-                                my_rt->rt(ray, start, scene, transform_list, color, reflection_depth, refraction_depth, shadow_on, reflection_on, refraction_on, ray_location);
+                        ray = current - eye;
+                        ray.normalize();
 
-                                r += (*color)[0];
-                                g += (*color)[1];
-                                b += (*color)[2];
-                                //                        color->getValue(r, g, b);
-                                r = r * 255;
-                                g = g * 255;
-                                b = b * 255;
+//                        my_rt->rt //ray_trace(ray, eye, scene, transform_list, color);
+                        my_rt->rt(ray, eye, scene, transform_list, color, reflection_depth, refraction_depth, shadow_on, reflection_on, refraction_on, ray_location);
 
-                                r = r/25;
-                                g = g/25;
-                                b = b/25;
-                                if(r > 255) r = 255;
-                                else if(r < 0) r = 0;
-                                if(g > 255) g = 255;
-                                else if(g < 0) g = 0;
-                                if(b > 255) b = 255;
-                                else if(b < 0) b = 0;
-
-                        }
-
-//                        ray = current - eye;
-//                        ray.normalize();
-
-//                        my_rt->rt(ray, eye, scene, transform_list, color, reflection_depth, refraction_depth, shadow_on, reflection_on, refraction_on, ray_location);
-//
-//                        r = (*color)[0];
-//                        g = (*color)[1];
-//                        b = (*color)[2];
-////                        color->getValue(r, g, b);
-//                        r = r * 255;
-//                        g = g * 255;
-//                        b = b * 255;
-//                        if(r > 255) r = 255;
-//                        else if(r < 0) r = 0;
-//                        if(g > 255) g = 255;
-//                        else if(g < 0) g = 0;
-//                        if(b > 255) b = 255;
-//                        else if(b < 0) b = 0;
+                        r = (*color)[0];
+                        g = (*color)[1];
+                        b = (*color)[2];
+//                        color->getValue(r, g, b);
+                        r = r * 255;
+                        g = g * 255;
+                        b = b * 255;
+                        if(r > 255) r = 255;
+                        else if(r < 0) r = 0;
+                        if(g > 255) g = 255;
+                        else if(g < 0) g = 0;
+                        if(b > 255) b = 255;
+                        else if(b < 0) b = 0;
 
                         /* Print to file*/
                         fp << (int)r << ' ' << (int)g << ' ' <<(int)b <<endl;
                         /* Move forward to next pixel*/
                         current += pixel_width*u;
-                        
-
                 }
 
                 scanline_start -= pixel_height*v;
