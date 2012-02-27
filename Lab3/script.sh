@@ -5,6 +5,7 @@ size=$1
 shadow=$2
 reflection=$3
 refraction=$4
+#./rt sphere3t.iv sphere3t.ppm $size $size $shadow $refraction $refraction
 ./rt refraction1.iv refraction1.ppm $size $size $shadow $reflection $refraction
 ./rt refraction2.iv refraction2.ppm $size $size $shadow $reflection $refraction
 ./rt refraction3.iv refraction3.ppm $size $size $shadow $reflection $refraction

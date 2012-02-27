@@ -163,10 +163,13 @@ int main(int argc, char **argv) {
         //SbColor *color = new SbColor();
         SbVec3f *color = new SbVec3f(0, 0, 0);
         float r, g, b;
-        int recursion_depth = 0;
+        int reflection_depth = 0;
+        int refraction_depth = 0;
         int shadow_on = atoi(argv[5]);
         int reflection_on = atoi(argv[6]);
         int refraction_on = atoi(argv[7]);
+
+        int ray_location = RAY_OUTSIDE;
 
         MyRayTracer *my_rt = new MyRayTracer(scene);
         /* Set scanline start begin at the left corner */
@@ -180,8 +183,7 @@ int main(int argc, char **argv) {
                         ray.normalize();
 
 //                        my_rt->rt //ray_trace(ray, eye, scene, transform_list, color);
-                        int ray_location = RAY_OUTSIDE;
-                        my_rt->rt(ray, eye, scene, transform_list, color, recursion_depth, shadow_on, reflection_on, refraction_on, ray_location);
+                        my_rt->rt(ray, eye, scene, transform_list, color, reflection_depth, refraction_depth, shadow_on, reflection_on, refraction_on, ray_location);
 
                         r = (*color)[0];
                         g = (*color)[1];

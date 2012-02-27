@@ -50,7 +50,7 @@ class MyRayTracer{
 
         MyRayTracer(OSUInventorScene *scene);
         int sphere_intersect(SbVec3f ray, SbVec3f eye, SbSphere sphere, SbVec3f *point_intersect);
-        void rt(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMatrix *transform_list, SbVec3f *color, int recursion_depth, int shadow_on, int reflection_on, int refraction_on, int ray_location);
+        void rt(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMatrix *transform_list, SbVec3f *color, int reflection_depth, int refraction_depth, int shadow_on, int reflection_on, int refraction_on, int ray_location);
 
 //	int is_in_shadow(SbVec3f intersect_point, SbVec3f light, SbVec3f light_location, OSUInventorScene *scene, SbMatrix *transform_list);
 
@@ -58,4 +58,5 @@ class MyRayTracer{
 
 	float cube_intersect(SbVec3f ray, SbVec3f eye, SoCube *cube, SbMatrix transform_matrix, SbVec3f &point, SbVec3f &inter_normal);
 	float object_in_path(SbVec3f intersect_point, SbVec3f light_vec, SbVec3f light_location, SbMatrix *transform_list, OSUInventorScene *scene,float t1, float t2);
+	void coordinate_gen(SbVec3f light_vector, SbVec3f &u, SbVec3f &v, SbVec3f &w);
 };
