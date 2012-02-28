@@ -244,9 +244,9 @@ int MyRayTracer::sphere_intersect(SbVec3f ray, SbVec3f eye, SbSphere sphere, SbV
                                         light_vector.negate();
                                         int hits = 0;
                                         int light_area = 2;
+                                        /*For softshadow*/
                                         if(shadow_on == 2)
                                         {
-                                                //SoftShadow
                                                 this->coordinate_gen(light_vector, u, v, w);
                                                 int m, n;
                                                 SbVec3f start = light_location - light_area/2 * u - light_area/2 * v;
@@ -525,106 +525,6 @@ if(refraction_on == True)
 
 }
 
-/* 
-* Name: is_in_shadow
-* Argument: 
-*          intersect_point: the ray intersect with the sphere point       
-*          light_vector: the light vector
-*          light_location: the light source location
-*          scene: the scene data
-*          transform_list: the scene tansform data
-* Return value: 1 means in the shadow, -1 means not in the shadow
-* Usage:
-*        check the intersect point whether in shadow or not. If in shadow return 1, or not in shadow return -1
-*/
-
-
-
-//int MyRayTracer::is_in_shadow(SbVec3f intersect_point, SbVec3f light_vector, SbVec3f light_location, OSUInventorScene *scene, SbMatrix *transform_list)
-//{
-//
-//        int in_shadow = -1;
-//        int i = 0;
-//        int length = scene->Objects.getLength();
-//        OSUObjectData *object = NULL;
-//        SbVec3f *point_intersect = new SbVec3f();
-//        SoType shape_type;
-//        SbVec3f center(0, 0, 0);
-//        SbVec3f center_new(0, 0, 0);
-//        SbVec3f center_min(0, 0, 0);
-//        SbVec3f scale_vector;
-//        float radius = 0;
-//        light_vector.normalize();
-//        light_vector.negate();
-//        //float EPSLON = 1e-3;
-//        //SbVec3f P = intersect_point + EPSLON * light_vector;
-//        SbVec3f P = intersect_point;
-//        SbVec3f Ray = light_location - P;
-//
-//        Ray.normalize();
-//        SbVec3f intersect_normal(0, 0, 0);
-//        float distance_length = FAR;
-//
-//
-//        int is_intersect = -1;
-//	int transparency_factor = 1;
-//
-//        for (i = 0; i < length; i++)
-//        {
-//                object = (OSUObjectData *)scene->Objects[i];
-//                shape_type = object->shape->getTypeId();
-//                if(shape_type == SoSphere::getClassTypeId()) 
-//                {
-//                        center.setValue(0, 0, 0);
-//                        transform_list[i].multVecMatrix(center, center_new);
-//                        scale_vector = object->transformation->scaleFactor.getValue();
-//                        radius = scale_vector[0];
-//                        SbSphere *sphere = new SbSphere(center_new, radius);
-//                        SbVec3f normal = P - center_new;
-//                        normal.normalize();
-//                        float angle = normal.dot(Ray);
-//                        is_intersect = this->sphere_intersect(Ray, P, *sphere, point_intersect);
-//                        if(is_intersect == 1) 
-//                        {
-//				if(object->material->transparency[0] <= 0)
-//				{
-//					in_shadow = 1;
-//					transparency_factor *= 0;
-//					//break;
-//				}
-//				else
-//					transparency_factor *= object->material->transparency[0];
-//                        }
-//                }
-//                else if(shape_type == SoCube::getClassTypeId()) 
-//                {
-//                        SoCube *cube = new SoCube();                        
-//                        SbVec3f cube_point_intersect = *point_intersect;
-//                        distance_length = this->cube_intersect(Ray, P, cube, transform_list[i], cube_point_intersect, intersect_normal);
-//                        if(distance_length != FAR) 
-//                        {
-//				//if(object->material->transparency[0] == 0||object->material->transparency[0] != NULL) 
-//				if(object->material->transparency[0] <= 0) 
-//				{
-//					in_shadow = 1;
-//					transparency_factor *= 0;
-//					//break;
-//				}
-//				else
-//					transparency_factor *= object->material->transparency[0];
-//                        }
-//                }
-//        }
-//	if(transparency_factor == 0)
-//	{
-//		in_shadow = 1;
-//	}
-//	else if((transparency_factor > 0) && (transparency_factor < 1))
-//		in_shadow = -1;
-//
-//        return in_shadow;
-//
-//}
 
 int MyRayTracer::refract(SbVec3f d, SbVec3f n, float Eta, SbVec3f *t)
 {
