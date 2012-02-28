@@ -4,11 +4,11 @@ run:
 How to run this program:
 	./rt <input.iv> <output.ppm> <yres> <xres> <shadow_on> <reflection_on> <refraction_on> <depth_of_field_on>
         for example:
-                To test softshadow and depth_of_field, I choose the sphereCycloid.iv file, run like this:
-                        ./rt sphereCycloid.iv sphereCycloid.ppm 200 200 2 1 1 1
-                I suggest to choose small picture size, I've use 500X500 resolution size, and opened softshadow and depth of field will take a long time, sometimes when I run this on the stdsun machine, it will also get some memory error...
+To test softshadow and depth_of_field, I choose the sphereCycloid.iv file, run like this:
+        ./rt sphereCycloid.iv sphereCycloid.ppm 200 200 2 1 1 1
+I suggest to choose small picture size, I've use 500X500 resolution size, and opened softshadow and depth of field will take a long time, sometimes when I run this on the stdsun machine, it will also get some memory error...
 
-For running efficiency, I choose the focus length as 15 and the number of cameras I change to 10.
-If you open all flags and increase the number of cameras to 100, it will take long time to generate the image.
+I set the camera number as 100 and the focal distance is 15.
+If you open all flags, it will take long time to generate the image.
 
 
