@@ -242,39 +242,42 @@ int MyRayTracer::sphere_intersect(SbVec3f ray, SbVec3f eye, SbSphere sphere, SbV
                                         light_vector.normalize();
                                         SbVec3f reflect_light_vector = light_vector;
                                         light_vector.negate();
-
-
-                                        //SoftShadow
-                                        this->coordinate_gen(light_vector, u, v, w);
                                         int hits;
-                                        int m, n;
                                         int light_area = 2;
-                                        SbVec3f start = light_location - light_area/2 * u - light_area/2 * v;
-                                        for(m = 0; m < light_area; m++)
+                                        if(shadow_on == 2)
                                         {
-                                                light_location = start;
-                                                for(n = 0; n < light_area; n++)
+                                                //SoftShadow
+                                                this->coordinate_gen(light_vector, u, v, w);
+                                                int m, n;
+                                                SbVec3f start = light_location - light_area/2 * u - light_area/2 * v;
+                                                for(m = 0; m < light_area; m++)
                                                 {
-                                                        float du = rand()/((float) RAND_MAX + 1);
-                                                        float dv = rand()/((float) RAND_MAX + 1);
-                                                        light_location = light_location + du * u + (dv+n) * v;
-                                                        light_vector = light_location - point_on_object;
-                                                        t2 = light_vector.length();
-                                                        light_vector.normalize();
-                                                        light_transparency_factor = this->object_in_path(point_on_object, light_vector, light_location, transform_list, scene, t1, t2);
-                                                        if(light_transparency_factor > ZERO)
+                                                        light_location = start;
+                                                        for(n = 0; n < light_area; n++)
                                                         {
-                                                                hits++;
+                                                                float du = rand()/float(RAND_MAX + 1);
+                                                                float dv = rand()/float(RAND_MAX + 1);
+                                                                //cout<<"DU"<<du<<"DV"<<dv<<endl;
+                                                                light_location = light_location + (du+m)*light_area/10 * u + (dv+n)*light_area/10 * v;
+                                                                light_vector = light_location - point_on_object;
+                                                                t2 = light_vector.length();
+                                                                light_vector.normalize();
+                                                                light_transparency_factor = this->object_in_path(point_on_object, light_vector, light_location, transform_list, scene, t1, t2);
+                                                                if(light_transparency_factor > ZERO)
+                                                                {
+                                                                        hits++;
+                                                                }
                                                         }
+                                                        start = start + v;
                                                 }
-                                                start = start + v;
+                                                light_intensity = light_intensity * hits/(light_area * light_area);
                                         }
-                                        light_intensity = light_intensity * hits/(light_area * light_area);
 //                                        light_vector = light_location - point_on_object;
 //                                        t2 = light_vector.length();
 //                                        light_vector.normalize();
-//                                        SbVec3f reflect_light_vector = light_vector;
-                               
+//
+//                                        light_transparency_factor = this->object_in_path(point_on_object, light_vector, light_location, transform_list, scene, t1, t2);
+//                                        light_intensity *= light_transparency_factor;
 
 
 
@@ -307,7 +310,7 @@ int MyRayTracer::sphere_intersect(SbVec3f ray, SbVec3f eye, SbSphere sphere, SbV
 						ambient_color.setValue(0, 0, 0);
 					}
 
-                                        if(shadow_on == True)
+                                        if(shadow_on == 1||shadow_on == 2)
                                         {
                                                 /* color set to zero for back face light*/
                                                 if (N_dot_L < 0)
@@ -419,8 +422,6 @@ int MyRayTracer::sphere_intersect(SbVec3f ray, SbVec3f eye, SbSphere sphere, SbV
               }                
 
 
-//if(recursion_depth < MAXRECURSION)
-//{
 /* Reflection */
 if(reflection_on == 1)
 {
@@ -851,7 +852,8 @@ void MyRayTracer::coordinate_gen(SbVec3f light_vector, SbVec3f &u, SbVec3f &v, S
         {
                 min = w[1];
                 min_index = 1;
-        }else if(w[2] < min)
+        }
+        if(w[2] < min)
         {
                 min = w[2];
                 min_index = 2;
