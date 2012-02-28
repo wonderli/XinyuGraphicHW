@@ -176,7 +176,7 @@ int main(int argc, char **argv) {
         MyRayTracer *my_rt = new MyRayTracer(scene);
         /* Set scanline start begin at the left corner */
         scanline_start.setValue(upperleft_corner[0], upperleft_corner[1], upperleft_corner[2]);
-        int ray_number = 10;
+        int ray_number = 25;
         int radius = 5;
         int depth_field = 15;
         /* Begin to do the iterate */
@@ -209,7 +209,8 @@ int main(int argc, char **argv) {
                                 {
                                         float du = rand()/float(RAND_MAX + 1);
                                         float dv = rand()/float(RAND_MAX + 1);
-                                        SbVec3f start = eye - radius/2 * u - radius/2 * v + radius * du * u + radius * dv *v;
+                                        //SbVec3f start = eye - radius/2 * u - radius/2 * v + radius * du * u + radius * dv *v;
+                                        SbVec3f start = eye + radius * du * u/5 + radius * dv *v/5;
                                         ray = aim_point - start;
                                         ray.normalize();
                                         my_rt->rt(ray, start, scene, transform_list, color, reflection_depth, refraction_depth, shadow_on, reflection_on, refraction_on, ray_location);
