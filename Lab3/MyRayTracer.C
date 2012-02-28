@@ -242,7 +242,7 @@ int MyRayTracer::sphere_intersect(SbVec3f ray, SbVec3f eye, SbSphere sphere, SbV
                                         light_vector.normalize();
                                         SbVec3f reflect_light_vector = light_vector;
                                         light_vector.negate();
-                                        int hits;
+                                        int hits = 0;
                                         int light_area = 2;
                                         if(shadow_on == 2)
                                         {

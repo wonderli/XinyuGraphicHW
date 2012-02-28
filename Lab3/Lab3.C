@@ -176,8 +176,8 @@ int main(int argc, char **argv) {
         MyRayTracer *my_rt = new MyRayTracer(scene);
         /* Set scanline start begin at the left corner */
         scanline_start.setValue(upperleft_corner[0], upperleft_corner[1], upperleft_corner[2]);
-        int ray_number = 25;
-        int radius = 5;
+        int ray_number = 10;
+        int radius = 2.5;
         int depth_field = 15;
         /* Begin to do the iterate */
         for(scanline = 0; scanline < yres; scanline++) {

@@ -2,8 +2,8 @@ How to compile this program:
 run:
 	make
 How to run this program:
-	./rt <input.iv> <output.ppm> <yres> <xres> <shadow_on> <reflection_on>
-        You can also run the script:
-                ./script_stdsun.sh
-        It will generate the sphere3s_reflection.ppm, mickeyspheres_reflection.ppm, sphereCycloidLit_reflection.ppm, sphereCycloid_reflection.ppm and sphereTowerLit_reflection.ppm as xres 500, yres 500 1 1
+	./rt <input.iv> <output.ppm> <yres> <xres> <shadow_on> <reflection_on> <refraction_on> <depth_of_field_on>
+
+I choose the focus as 15. If you open all flags, it will take long time to generate the image.
+
 
