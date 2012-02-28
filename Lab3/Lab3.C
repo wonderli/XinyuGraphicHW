@@ -120,6 +120,7 @@ int main(int argc, char **argv) {
 
         /* Image plane setup */
         int d = 1;//d is 1
+        //int d = 10;//d is 1
 
         float pixel_height;
         float pixel_width;
@@ -175,6 +176,9 @@ int main(int argc, char **argv) {
         MyRayTracer *my_rt = new MyRayTracer(scene);
         /* Set scanline start begin at the left corner */
         scanline_start.setValue(upperleft_corner[0], upperleft_corner[1], upperleft_corner[2]);
+        int ray_number = 10;
+        int radius = 5;
+        int depth_field = 15;
         /* Begin to do the iterate */
         for(scanline = 0; scanline < yres; scanline++) {
                 current = scanline_start;
@@ -192,7 +196,36 @@ int main(int argc, char **argv) {
                                 g = (*color)[1];
                                 b = (*color)[2];
                         }
-//                        color->getValue(r, g, b);
+                        else if(depth_of_field_flag == 1)
+                        {
+                                SbVec3f ray_direction = current - eye;
+                                SbVec3f aim_point = eye + depth_field * ray_direction;
+                                ray_direction.normalize();
+                                int index = 0;
+                                r = 0;
+                                g = 0;
+                                b = 0;
+                                for(index = 0; index < ray_number; index++)
+                                {
+                                        float du = rand()/float(RAND_MAX + 1);
+                                        float dv = rand()/float(RAND_MAX + 1);
+                                        SbVec3f start = eye - radius/2 * u - radius/2 * v + radius * du * u + radius * dv *v;
+                                        ray = aim_point - start;
+                                        ray.normalize();
+                                        my_rt->rt(ray, start, scene, transform_list, color, reflection_depth, refraction_depth, shadow_on, reflection_on, refraction_on, ray_location);
+                                        
+                                        float tmp_r = (*color)[0];
+                                        float tmp_g = (*color)[1];
+                                        float tmp_b = (*color)[2];
+                                        r = r + tmp_r;
+                                        g = g + tmp_g;
+                                        b = b + tmp_b;
+                                }
+                                r = r/ray_number;
+                                g = g/ray_number;
+                                b = b/ray_number;
+
+                        }
                         r = r * 255;
                         g = g * 255;
                         b = b * 255;
