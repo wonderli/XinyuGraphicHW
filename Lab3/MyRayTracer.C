@@ -770,13 +770,22 @@ float MyRayTracer::cube_intersect(SbVec3f ray, SbVec3f eye, SoCube *cube, SbMatr
 }
 
 
+/* 
+* Name: object_in_path 
+* Argument: 
+*          intersect_point: the ray intersect with the sphere point       
+*          light_vector: the light vector
+*          light_location: the light source location
+*          transform_list: the scene tansform data
+*          scene: the scene data
+*          t1: ZERO
+*          t2: The distance to light source
+* Return value: transparency factor 
+* Usage:
+*        check the intersect point whether in shadow or not. If in shadow return 1, else it will return the transparency factor about the light
+*/
 
-
-
-
-
-
-float MyRayTracer::object_in_path(SbVec3f intersect_point, SbVec3f light_vec, SbVec3f light_location, SbMatrix *transform_list, OSUInventorScene *scene,float t1, float t2)
+float MyRayTracer::object_in_path(SbVec3f intersect_point, SbVec3f light_vector, SbVec3f light_location, SbMatrix *transform_list, OSUInventorScene *scene,float t1, float t2)
 {	
         int i;
 	SoType 	shapeType;
@@ -840,6 +849,16 @@ float MyRayTracer::object_in_path(SbVec3f intersect_point, SbVec3f light_vec, Sb
 	
 }
 
+
+/* 
+* Name: coordinate_gen
+* Argument: 
+*          light_vector: input vector
+*          u, v, w: the direction of vector of input vector
+* Return value: void 
+* Usage:
+*       generate the direction vector u, v, w of input vector
+*/
 void MyRayTracer::coordinate_gen(SbVec3f light_vector, SbVec3f &u, SbVec3f &v, SbVec3f &w)
 {
         light_vector.normalize();

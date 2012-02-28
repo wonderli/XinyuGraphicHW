@@ -57,6 +57,6 @@ class MyRayTracer{
         int refract(SbVec3f d, SbVec3f n, float Eta, SbVec3f *t);
 
 	float cube_intersect(SbVec3f ray, SbVec3f eye, SoCube *cube, SbMatrix transform_matrix, SbVec3f &point, SbVec3f &inter_normal);
-	float object_in_path(SbVec3f intersect_point, SbVec3f light_vec, SbVec3f light_location, SbMatrix *transform_list, OSUInventorScene *scene,float t1, float t2);
+	float object_in_path(SbVec3f intersect_point, SbVec3f light_vector, SbVec3f light_location, SbMatrix *transform_list, OSUInventorScene *scene,float t1, float t2);
 	void coordinate_gen(SbVec3f light_vector, SbVec3f &u, SbVec3f &v, SbVec3f &w);
 };
