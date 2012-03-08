@@ -269,7 +269,6 @@ void MyRayTracer::rt(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMatrix
 			closest_object = object;
 			distance_length_min = distance_length;
 			point_on_object = *point_intersect;
-			//center_min = center_new;
 			normal = intersect_normal;
 			min_index = i;
 		}
