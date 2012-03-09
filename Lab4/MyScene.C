@@ -18,7 +18,7 @@ SbMatrix* MyScene::set_object() {
         SbVec3f translation_vector;
 
         int length = this->scene->Objects.getLength();
-	int i = 0;
+		int i = 0;
 
         for (i = 0; i < length; i++) {
                 //OSUObjectData *object = (OSUObjectData *)scene->Objects[i];
@@ -33,6 +33,7 @@ SbMatrix* MyScene::set_object() {
                 scale_vector = transformation->scaleFactor.getValue();
                 rotation = transformation->rotation.getValue();
                 rotation.getValue(rotation_axis, rotation_angle);
+				cout<<"Rotation: ("<<rotation_axis[0]<<","<<rotation_axis[1]<<","<<rotation_axis[2]<<","<<rotation_angle<<")"<<endl;
 
                 T.makeIdentity();
                 S.makeIdentity();
@@ -42,10 +43,15 @@ SbMatrix* MyScene::set_object() {
                 S.setScale(scale_vector);
                 R.setRotate(rotation);
 
-                this->transform_list[i].makeIdentity();
+                //this->transform_list[i].makeIdentity();
+                //this->transform_list[i].multRight(S);
+                //this->transform_list[i].multRight(R);
+                //this->transform_list[i].multRight(T);
+				this->transform_list[i].makeIdentity();
                 this->transform_list[i].multRight(S);
                 this->transform_list[i].multRight(R);
                 this->transform_list[i].multRight(T);
+
         }
         return this->transform_list;
 

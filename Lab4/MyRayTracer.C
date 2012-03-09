@@ -21,41 +21,6 @@ MyRayTracer::MyRayTracer(OSUInventorScene *scene) {
  *       Check the ray and sphere whether have intersection or not, if have, store the intersection point.
  */
 
-//int MyRayTracer::sphere_intersect(SbVec3f ray, SbVec3f eye, SbSphere sphere, SbVec3f *point_intersect) {
-//	float r = sphere.getRadius();
-//	SbVec3f sphere_center = sphere.getCenter();
-//	float a, b, c, discriminant;
-//	float root_1, root_2;
-//	float root;
-//	int is_intersect = -1;
-//	SbVec3f d = ray;
-//	SbVec3f eye_minus_center = eye - sphere_center;
-//
-//	a = d.dot(d);
-//	b = 2 * d.dot(eye - sphere_center);
-//	c = eye_minus_center.dot(eye_minus_center) - r * r;
-//
-//	discriminant = b * b - 4 * a * c;
-//	if(discriminant > ZERO) {
-//		root_1 = (-b - sqrt(discriminant))/(2*a);
-//		root_2 = (-b + sqrt(discriminant))/(2*a);
-//		if((root_1 > ZERO) && (root_2 > ZERO)) {
-//			if (root_1 < root_2) {
-//				root = root_1;
-//				is_intersect = 1;
-//				*point_intersect = eye + ray * root;
-//			} else {
-//				root = root_2;
-//				is_intersect = 1;
-//				*point_intersect = eye + ray * root;
-//			} 
-//
-//		} else {
-//			is_intersect = -1;
-//		}
-//	}
-//	return is_intersect;
-//}
 float MyRayTracer::sphere_intersect(SbVec3f ray, SbVec3f eye, SoSphere *sphere, SbMatrix transform_matrix, SbVec3f &point_intersect, SbVec3f &inter_normal) {
 
 	float r = sphere->radius.getValue();
@@ -124,7 +89,10 @@ float MyRayTracer::sphere_intersect(SbVec3f ray, SbVec3f eye, SoSphere *sphere, 
 	if(is_intersect == TRUE)
 	{
 		transform_matrix.multVecMatrix(object_point, point_intersect);
-		transform_matrix.multDirMatrix(object_inter_normal, inter_normal);
+		//SbMatrix inverse_matrix_transpose = inverse_matrix;
+		//inverse_matrix_transpose.transpose();
+		//inverse_matrix_transpose.multDirMatrix(object_inter_normal, inter_normal);
+		inverse_matrix.transpose().multDirMatrix(object_inter_normal, inter_normal);
 		inter_normal.normalize(); 
 		distance_length = (eye - point_intersect).length(); 
 	}
@@ -230,27 +198,8 @@ void MyRayTracer::rt(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMatrix
 		shape_type = object->shape->getTypeId();
 		if(shape_type == SoSphere::getClassTypeId()) 
 		{
-//			center.setValue(0, 0, 0);
-//			transform_list[i].multVecMatrix(center, center_new);
-//			scale_vector = object->transformation->scaleFactor.getValue();
-//			radius = scale_vector[0];
-//			SbSphere *sphere = new SbSphere(center_new, radius);
-//			is_intersect = this->sphere_intersect(ray, eye, *sphere, point_intersect);
-//
-//			if(is_intersect == 1) 
-//			{
-//				distance = eye - *point_intersect;
-//				distance_length = distance.length();
-//				intersect_normal = *point_intersect - center_new;
-//				intersect_normal.normalize();
-//
-//			} else
-//				distance_length = FAR;
-					
-			//SbSphere *sphere = new SbSphere(center, 1.0);
 			SoSphere *sphere = (SoSphere*)(object->shape);
 			distance_length = this->sphere_intersect(ray, eye, sphere, transform_list[i], point_on_object, intersect_normal);
-			//cout<<"DISTANCE LENGTH"<<distance_length<<endl;
 			*point_intersect = point_on_object; 
 			intersect_normal.normalize();
 
@@ -786,38 +735,15 @@ float MyRayTracer::object_in_path(SbVec3f intersect_point, SbVec3f light_vector,
 
 		if(shapeType == SoSphere::getClassTypeId())
 		{			
-//			SoSphere *Sphere = (SoSphere*)(object->shape);
-//			center.setValue(0, 0, 0);
-//			transform_list[i].multVecMatrix(center, center_new);
-//			scale_vector = object->transformation->scaleFactor.getValue();
-//			radius = scale_vector[0];
-//			SbSphere *sphere = new SbSphere(center_new, radius);
-//			//is_intersect = this->sphere_intersect(Ray, light_location, *sphere, point_intersect);
-//			is_intersect = this->sphere_intersect(Ray, P, *sphere, point_intersect);
-//			if(is_intersect == True) 
-//			{
-//				distance = light_location - *point_intersect;
-//				distance_length = distance.length();
-//				intersect_normal = *point_intersect - center_new;
-//				intersect_normal.normalize();
-//
-//			} else
-//				distance_length = FAR;
-			//center.setValue(0,0,0);
-			//SbSphere *sphere = new SbSphere(center, 1.0);
-			//SbSphere *sphere = new SbSphere();
 			SoSphere *sphere = (SoSphere*)(object->shape);
 			distance_length = this->sphere_intersect(Ray, P, sphere, transform_list[i], intersect_point, normal);
 
 		}
-
 		else if(shapeType == SoCube::getClassTypeId())
 		{
 			SoCube *cube = (SoCube*)(object->shape);
-			//                        distance_length = cube_intersect(Ray, light_location, cube, transform_list[i], intersect_point, normal);
 			distance_length = cube_intersect(Ray, P, cube, transform_list[i], intersect_point, normal);
 		}
-
 		if (distance_length > t1 && distance_length < t2)
 		{
 			transparency *= object->material->transparency[0];

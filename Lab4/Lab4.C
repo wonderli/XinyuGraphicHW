@@ -93,7 +93,7 @@ int main(int argc, char **argv) {
 	}
 	camera_orientation.multVec(SbVec3f(0, 0, -1), camera_direction);
 	camera_orientation.multVec(SbVec3f(0, 1, 0), camera_view_up);
-
+	
 	/* Set up eye, n, v, u */
 	SbVec3f eye, COI,n, v, u;
 	eye.setValue(camera_position[0], camera_position[1], camera_position[2]);
