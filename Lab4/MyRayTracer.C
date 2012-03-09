@@ -836,7 +836,8 @@ void MyRayTracer::coordinate_gen(SbVec3f light_vector, SbVec3f &u, SbVec3f &v, S
 
 void MyRayTracer::checker_board(float x, float y, float z, float size, float *color0, float *color1, float *color2)
 {
-	int jump = ((int)(x/size) + (int)(y/size) + (int)(z/size))%2;
+	float A = 100;
+	int jump = ((int)(A + x/size) + (int)(A + y/size) + (int)(A + z/size))%2;
 	if(jump == 0)
 	{
 		*color0 = 0.5;
@@ -872,5 +873,6 @@ void MyRayTracer::rings(float x, float y, float z, float size, float *color0, fl
 
 void MyRayTracer::wood_grain(float x, float y, float z, float size, float *color0, float *color1, float *color2)
 {
+
 
 }
