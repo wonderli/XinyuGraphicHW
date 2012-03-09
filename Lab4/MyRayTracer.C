@@ -433,25 +433,40 @@ void MyRayTracer::rt(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMatrix
 			}else 
 				continue;
 		}
-		//Solid Texture
-		SbVec3f cube_point;
+		//Solid Texture, checker board
+		SbVec3f cube_point(0, 0, 0);
 		float check_board_texture0 = 1;
 		float check_board_texture1 = 1;
 		float check_board_texture2 = 1;
-		transform_list[min_index].inverse().multVecMatrix(point_on_object, cube_point);
-		//if(closest_object->shape->getTypeId() == SoCube::getClassTypeId())
+		transform_list[min_index].inverse().multDirMatrix(point_on_object, cube_point);
 		if(closest_object->shape->getTypeId() == SoCube::getClassTypeId())
 		{
-			//if((closest_object->transformation->scaleFactor.getValue())[0]>=10 )
+			if((closest_object->transformation->scaleFactor.getValue())[0]>3 )
 			{
 				this->checker_board(cube_point[0], cube_point[1], cube_point[2], 0.05, &check_board_texture0, &check_board_texture1, &check_board_texture2);
-				//this->checker_board(point_on_object[0], point_on_object[1], point_on_object[2], 0.15, &check_board_texture0, &check_board_texture1, &check_board_texture2);
 			}
-				color0 *= check_board_texture0;
-				color1 *= check_board_texture1;
-				color2 *= check_board_texture2;
-
 		}
+		color0 *= check_board_texture0;
+		color1 *= check_board_texture1;
+		color2 *= check_board_texture2;
+		//Solid texture, ring
+		SbVec3f sphere_texture_point(0, 0, 0);
+		float ring_texture0 = 1;
+		float ring_texture1 = 1;
+		float ring_texture2 = 1;
+		transform_list[min_index].inverse().multDirMatrix(point_on_object, sphere_texture_point);
+		if(closest_object->shape->getTypeId() == SoSphere::getClassTypeId())
+		{
+			//if((closest_object->transformation->scaleFactor.getValue())[0]>3 )
+			{
+				this->rings(sphere_texture_point[0], sphere_texture_point[1], sphere_texture_point[2], 0.05, &ring_texture0, &ring_texture1, &ring_texture2);
+			}
+		}
+		color0 *= ring_texture0;
+		color1 *= ring_texture1;
+		color2 *= ring_texture2;
+
+
 
 
 	}
@@ -824,16 +839,38 @@ void MyRayTracer::checker_board(float x, float y, float z, float size, float *co
 	int jump = ((int)(x/size) + (int)(y/size) + (int)(z/size))%2;
 	if(jump == 0)
 	{
-		*color0 = 1;
+		*color0 = 0.5;
 		*color1 = 0.5;
-		*color2 = 0;
+		*color2 = 0.5;
 
 	}
 	else if(jump == 1)
 	{
-		*color0 = 0.2;
-		*color1 = 0;
-		*color2 = 1;
+		*color0 = 0.8;
+		*color1 = 0.8;
+		*color2 = 0.8;
 	}
 }
+void MyRayTracer::rings(float x, float y, float z, float size, float *color0, float *color1, float *color2)
+{
+	float m = 0.2;
+	int r = (int)(sqrt(x * x+y * y+ z * z)/m)%2;
+	if(r == 0)
+	{
+		*color0 = 0.9;
+		*color1 = 0.0;
+		*color2 = 0.2;
+	}
+	else if(r == 1)
+	{
+		*color0 = 0.0;
+		*color1 = 0.2;
+		*color2 = 0.8;
+	}
 
+}
+
+void MyRayTracer::wood_grain(float x, float y, float z, float size, float *color0, float *color1, float *color2)
+{
+
+}
