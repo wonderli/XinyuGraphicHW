@@ -58,43 +58,44 @@ MyRayTracer::MyRayTracer(OSUInventorScene *scene) {
 //}
 float MyRayTracer::sphere_intersect(SbVec3f ray, SbVec3f eye, SoSphere *sphere, SbMatrix transform_matrix, SbVec3f &point_intersect, SbVec3f &inter_normal) {
 
-	//float r = sphere.getRadius();
 	float r = sphere->radius.getValue();
+//    cout<<"RADIUS"<<r<<endl;
 	//SbVec3f sphere_center = sphere.getCenter();
 	SbVec3f sphere_center(0, 0, 0);
 	float a, b, c, discriminant;
 	float root_1, root_2;
 	float root;
 	float distance_length = FAR;
-//	int is_intersect = -1;
 	int is_intersect = FALSE;
 
-	SbVec3f object_eye(0, 0, 0);
-	SbVec3f object_ray(0, 0, 0);
-	SbVec3f object_point(0, 0, 0);
-	SbVec3f object_inter_normal(0, 0, 0);
+//	SbVec3f object_eye(0, 0, 0);
+//	SbVec3f object_ray(0, 0, 0);
+//	SbVec3f object_point(0, 0, 0);
+//	SbVec3f object_inter_normal(0, 0, 0);
+	SbVec3f object_eye;
+	SbVec3f object_ray;
+	SbVec3f object_point;
+	SbVec3f object_inter_normal;
+
 	SbMatrix inverse_matrix = transform_matrix.inverse();
+
 	inverse_matrix.multVecMatrix(eye, object_eye); // Transform Eye coordinate
 	inverse_matrix.multDirMatrix(ray, object_ray); // Transform Ray direction
 	object_ray.normalize();
 
-	
 
 
-//	SbVec3f d = ray;
-	//SbVec3f eye_minus_center = eye - sphere_center;
 	SbVec3f d = object_ray;
 	SbVec3f eye_minus_center = object_eye - sphere_center;
 
 	
-	//a = 1;
-	//b = 2 * object_eye.dot(object_ray);
-	//c = object_eye.dot(object_eye) - r * r;
 	a = d.dot(d);
-	//b = 2 * d.dot(eye - sphere_center);
 	b = 2 * d.dot(object_eye - sphere_center);
 	c = eye_minus_center.dot(eye_minus_center) - r * r;
-
+//    a = 1;
+//    b = 2 * object_eye.dot(object_ray);
+//    c = object_eye.dot(object_eye) - r * r; 
+//
 	discriminant = b * b - 4 * a * c;
 	if(discriminant > ZERO) {
 		root_1 = (-b - sqrt(discriminant))/(2*a);
@@ -102,17 +103,16 @@ float MyRayTracer::sphere_intersect(SbVec3f ray, SbVec3f eye, SoSphere *sphere, 
 		if((root_1 > ZERO) && (root_2 > ZERO)) {
 			if (root_1 < root_2) {
 				root = root_1;
-				//is_intersect = 1;
 				is_intersect = TRUE;
 			//	*point_intersect = eye + ray * root;
-				point_intersect = object_eye + object_ray * root;
+				object_point = object_eye + object_ray * root;
 				object_inter_normal = object_point - sphere_center;
 			} else {
 				root = root_2;
 				//is_intersect = 1;
 				is_intersect = TRUE;
 				//*point_intersect = eye + ray * root;
-				point_intersect = object_eye + object_ray * root;
+				object_point = object_eye + object_ray * root;
 				object_inter_normal = object_point - sphere_center;
 			} 
 
@@ -130,6 +130,7 @@ float MyRayTracer::sphere_intersect(SbVec3f ray, SbVec3f eye, SoSphere *sphere, 
 	}
 	else
 		distance_length = FAR;
+
 	return distance_length;
 }
 
