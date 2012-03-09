@@ -85,17 +85,17 @@ float MyRayTracer::sphere_intersect(SbVec3f ray, SbVec3f eye, SoSphere *sphere, 
 
 
 
-	SbVec3f d = object_ray;
-	SbVec3f eye_minus_center = object_eye - sphere_center;
-
-	
-	a = d.dot(d);
-	b = 2 * d.dot(object_eye - sphere_center);
-	c = eye_minus_center.dot(eye_minus_center) - r * r;
-//    a = 1;
-//    b = 2 * object_eye.dot(object_ray);
-//    c = object_eye.dot(object_eye) - r * r; 
+//	SbVec3f d = object_ray;
+//	SbVec3f eye_minus_center = object_eye - sphere_center;
 //
+//	
+//	a = d.dot(d);
+//	b = 2 * d.dot(object_eye - sphere_center);
+//	c = eye_minus_center.dot(eye_minus_center) - r * r;
+    a = 1;
+    b = 2 * object_eye.dot(object_ray);
+    c = object_eye.dot(object_eye) - r * r; 
+
 	discriminant = b * b - 4 * a * c;
 	if(discriminant > ZERO) {
 		root_1 = (-b - sqrt(discriminant))/(2*a);
