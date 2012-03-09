@@ -33,7 +33,7 @@ SbMatrix* MyScene::set_object() {
                 scale_vector = transformation->scaleFactor.getValue();
                 rotation = transformation->rotation.getValue();
                 rotation.getValue(rotation_axis, rotation_angle);
-				cout<<"Rotation: ("<<rotation_axis[0]<<","<<rotation_axis[1]<<","<<rotation_axis[2]<<","<<rotation_angle<<")"<<endl;
+				//cout<<"Rotation: ("<<rotation_axis[0]<<","<<rotation_axis[1]<<","<<rotation_axis[2]<<","<<rotation_angle<<")"<<endl;
 
                 T.makeIdentity();
                 S.makeIdentity();

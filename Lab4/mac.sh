@@ -11,7 +11,7 @@ depthfield=$5
 #./rt refraction2.iv refraction2.ppm $size $size $shadow $reflection $refraction $depthfield
 #./rt refraction3.iv refraction3.ppm $size $size $shadow $reflection $refraction $depthfield
 
-#./rt cubesphere3.iv cubesphere3.ppm $size $size $shadow $reflection $refraction $depthfield
+./rt cubesphere3.iv cubesphere3.ppm $size $size $shadow $reflection $refraction $depthfield
 #./rt cubesphere4.iv cubesphere4.ppm $size $size $shadow $reflection $refraction $depthfield
 #./rt cubesphere5.iv cubesphere5.ppm $size $size $shadow $reflection $refraction $depthfield
 #./rt sphereCycloid.iv sphereCycloid.ppm $size $size $shadow $reflection $refraction $depthfield
@@ -20,8 +20,8 @@ depthfield=$5
 #./rt cubesphere.iv cubesphere.ppm 500 500 1 0 $shadow $reflection $refraction
 #open .
 
-./rt stretched2.iv stretched2.ppm  $size $size $shadow $reflection $refraction $depthfield
-./rt stretched_sphere3.iv stretched_sphere3.ppm $size $size $shadow $reflection $refraction $depthfield
+#./rt stretched2.iv stretched2.ppm  $size $size $shadow $reflection $refraction $depthfield
+#./rt stretched_sphere3.iv stretched_sphere3.ppm $size $size $shadow $reflection $refraction $depthfield
 
 
 

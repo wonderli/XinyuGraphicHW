@@ -433,6 +433,25 @@ void MyRayTracer::rt(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMatrix
 			}else 
 				continue;
 		}
+		//Solid Texture
+		SbVec3f cube_point;
+		float check_board_texture0 = 1;
+		float check_board_texture1 = 1;
+		float check_board_texture2 = 1;
+		transform_list[min_index].inverse().multVecMatrix(point_on_object, cube_point);
+		//if(closest_object->shape->getTypeId() == SoCube::getClassTypeId())
+		if(closest_object->shape->getTypeId() == SoCube::getClassTypeId())
+		{
+			//if((closest_object->transformation->scaleFactor.getValue())[0]>=10 )
+			{
+				this->checker_board(cube_point[0], cube_point[1], cube_point[2], 0.05, &check_board_texture0, &check_board_texture1, &check_board_texture2);
+				//this->checker_board(point_on_object[0], point_on_object[1], point_on_object[2], 0.15, &check_board_texture0, &check_board_texture1, &check_board_texture2);
+			}
+				color0 *= check_board_texture0;
+				color1 *= check_board_texture1;
+				color2 *= check_board_texture2;
+
+		}
 
 
 	}
@@ -800,4 +819,21 @@ void MyRayTracer::coordinate_gen(SbVec3f light_vector, SbVec3f &u, SbVec3f &v, S
 
 }
 
+void MyRayTracer::checker_board(float x, float y, float z, float size, float *color0, float *color1, float *color2)
+{
+	int jump = ((int)(x/size) + (int)(y/size) + (int)(z/size))%2;
+	if(jump == 0)
+	{
+		*color0 = 1;
+		*color1 = 0.5;
+		*color2 = 0;
+
+	}
+	else if(jump == 1)
+	{
+		*color0 = 0.2;
+		*color1 = 0;
+		*color2 = 1;
+	}
+}
 
