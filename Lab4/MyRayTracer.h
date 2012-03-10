@@ -13,6 +13,7 @@ using namespace std;
 #include <Inventor/nodes/SoPerspectiveCamera.h>
 #include <Inventor/nodes/SoTransform.h>
 #include <Inventor/nodes/SoSphere.h>
+#include <Inventor/nodes/SoCylinder.h>
 #include <Inventor/nodes/SoCube.h>
 #include <Inventor/nodes/SoLight.h>
 #include <Inventor/nodes/SoPointLight.h>
@@ -62,4 +63,5 @@ class MyRayTracer{
 	void checker_board(float x, float y, float z, float size, float *color0, float *color1, float *color2);
 	void rings(float x, float y, float z, float size, float *color0, float *color1, float *color2);
 	void wood_grain(float x, float y, float z, float size, float *color0, float *color1, float *color2);
+	float quadric_intersect(SbVec3f ray, SbVec3f eye, SoCylinder *cylinder, SbMatrix transform_matrix, SbVec3f &point_intersect, SbVec3f &inter_normal);
 };

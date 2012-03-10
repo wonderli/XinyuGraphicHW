@@ -89,9 +89,6 @@ float MyRayTracer::sphere_intersect(SbVec3f ray, SbVec3f eye, SoSphere *sphere, 
 	if(is_intersect == TRUE)
 	{
 		transform_matrix.multVecMatrix(object_point, point_intersect);
-		//SbMatrix inverse_matrix_transpose = inverse_matrix;
-		//inverse_matrix_transpose.transpose();
-		//inverse_matrix_transpose.multDirMatrix(object_inter_normal, inter_normal);
 		inverse_matrix.transpose().multDirMatrix(object_inter_normal, inter_normal);
 		inter_normal.normalize(); 
 		distance_length = (eye - point_intersect).length(); 
@@ -205,6 +202,7 @@ void MyRayTracer::rt(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMatrix
 
 		}//end of sphere intersect  
 		else if(shape_type == SoCube::getClassTypeId()) 
+		//if(shape_type == SoCube::getClassTypeId()) 
 		{
 			SoCube *cube = (SoCube*)(object->shape);
 			distance_length = this->cube_intersect(ray, eye, cube, transform_list[i], point_on_object, intersect_normal);
@@ -213,6 +211,19 @@ void MyRayTracer::rt(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMatrix
 			intersect_normal.normalize();
 
 		}//end of cube intersect
+
+		else if(shape_type == SoCylinder::getClassTypeId()) 
+		//if(shape_type == SoCylinder::getClassTypeId()) 
+		{
+			SoCylinder *cylinder = (SoCylinder*)(object->shape);
+			distance_length = this->quadric_intersect(ray, eye, cylinder, transform_list[i], point_on_object, intersect_normal);
+			//cout<<"DISTANCE LENGTH"<<distance_length<<endl;
+			*point_intersect = point_on_object; 
+			intersect_normal.normalize();
+
+		}//end of cylinder intersect
+
+
 
 		if(distance_length < distance_length_min) 
 		{
@@ -449,6 +460,7 @@ void MyRayTracer::rt(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMatrix
 		color0 *= check_board_texture0;
 		color1 *= check_board_texture1;
 		color2 *= check_board_texture2;
+
 		//Solid texture, ring
 		SbVec3f sphere_texture_point(0, 0, 0);
 		float ring_texture0 = 1;
@@ -459,7 +471,8 @@ void MyRayTracer::rt(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMatrix
 		{
 			//if((closest_object->transformation->scaleFactor.getValue())[0]>3 )
 			{
-				this->rings(sphere_texture_point[0], sphere_texture_point[1], sphere_texture_point[2], 0.05, &ring_texture0, &ring_texture1, &ring_texture2);
+				//this->rings(sphere_texture_point[0], sphere_texture_point[1], sphere_texture_point[2], 0.05, &ring_texture0, &ring_texture1, &ring_texture2);
+				this->wood_grain(sphere_texture_point[0], sphere_texture_point[1], sphere_texture_point[2], 0.05, &ring_texture0, &ring_texture1, &ring_texture2);
 			}
 		}
 		color0 *= ring_texture0;
@@ -778,6 +791,15 @@ float MyRayTracer::object_in_path(SbVec3f intersect_point, SbVec3f light_vector,
 			SoCube *cube = (SoCube*)(object->shape);
 			distance_length = cube_intersect(Ray, P, cube, transform_list[i], intersect_point, normal);
 		}
+		else if(shapeType == SoCylinder::getClassTypeId())//CYLINDER
+		{
+			SoCylinder *cylinder = (SoCylinder*)(object->shape);
+			distance_length = quadric_intersect(Ray, P, cylinder, transform_list[i], intersect_point, normal);
+		}
+
+
+
+
 		if (distance_length > t1 && distance_length < t2)
 		{
 			transparency *= object->material->transparency[0];
@@ -874,5 +896,126 @@ void MyRayTracer::rings(float x, float y, float z, float size, float *color0, fl
 void MyRayTracer::wood_grain(float x, float y, float z, float size, float *color0, float *color1, float *color2)
 {
 
-
+	float M = 0.03;
+	float N = 2;
+	float theta = 0;
+	float k = 2;
+	float r = 0;
+	float rings = 0;
+	float bz = 0.1;
+	//SbVec3f A(0.2, 0.2, 0.2);
+	//SbVec3f A(1, 1, 1);
+	SbVec3f A(0.4, 0.4, 0.4);
+	SbVec3f D(0.5, 0.3, 0.3);
+	SbVec3f v;
+	v.setValue(x, y, z);
+	v.normalize();
+	theta = acos(SbVec3f(0, 0, 1).dot(v));
+	r = sqrt(x * x + y * y + z * z);
+	rings = ((int)(r/M + k * sin(theta/N + 0.1)))%2;
+	SbVec3f tmp(0, 0, 0);
+	//tmp = D + A * rings;
+	//tmp = D + A * rings;
+	tmp = D + A * rings;
+	tmp.getValue(*color0, *color1, *color2);
 }
+
+
+
+
+
+
+float MyRayTracer::quadric_intersect(SbVec3f ray, SbVec3f eye, SoCylinder *cylinder, SbMatrix transform_matrix, SbVec3f &point_intersect, SbVec3f &inter_normal) {
+
+	//float radius = cylinder->radius.getValue();
+	//float height = cylinder->height.getValue();
+	float a, b, c, discriminant;
+	float root_1, root_2;
+	float root;
+	float distance_length = FAR;
+	int is_intersect = FALSE;
+	float A, B, C, D, E, F, G, H, I, J;
+
+
+
+
+
+	SbVec3f object_eye;
+	SbVec3f object_ray;
+	SbVec3f object_point;
+	SbVec3f object_inter_normal;
+
+	SbMatrix inverse_matrix = transform_matrix.inverse();
+
+	inverse_matrix.multVecMatrix(eye, object_eye); // Transform Eye coordinate
+	inverse_matrix.multDirMatrix(ray, object_ray); // Transform Ray direction
+	object_ray.normalize();
+
+
+
+	//SbVec3f D = object_ray;
+	float xd = object_ray[0];
+	float yd = object_ray[1];
+	float zd = object_ray[2];
+
+	float xr = object_eye[0];
+	float yr = object_eye[1];
+	float zr = object_eye[2];
+//	A = 100, B = -25, C = 4, D = E = F = 0, G = -200, H = -100, I = -8, J = 104; 
+	A = 1, B = 0, C = 1, D = E = F = 0, G = 0, H = 0, I = 0 , J = -2; 
+	
+	a = A * xd * xd + B * yd * yd + C * zd * zd + D * xd * yd + E * xd * zd + F * yd * zd;
+	b = 2 * A * xr * xd + 2 * B * yr * yd + 2 * C * zr * zd + D * (xr * yd + yr * xd) + E * xr * zd + F * (yr * zd + yd * zr) + G * xd + H * yd + I * zd;
+	c = A * xr * xr + B * yr * yr + C * zr * zr + D * xr * yr + E * xr * zr + F * yr * zr + G * xr + H * yr + I * zr + J;
+	
+	float low = 1;
+	float high = 3;
+
+
+
+	discriminant = b * b - 4 * a * c;
+	if(discriminant > ZERO) {
+		root_1 = (-b - sqrt(discriminant))/(2*a);
+		root_2 = (-b + sqrt(discriminant))/(2*a);
+		if((root_1 > ZERO) && (root_2 > ZERO)) {
+			if (root_1 < root_2) {
+				root = root_1;
+				is_intersect = TRUE;
+				object_point = object_eye + object_ray * root;
+				//object_inter_normal =object_point;
+				object_inter_normal.setValue(object_point[0], 0, object_point[2]);
+				
+			} else {
+				root = root_2;
+				is_intersect = TRUE;
+				object_point = object_eye + object_ray * root;
+				//object_inter_normal = object_point;
+				object_inter_normal.setValue(object_point[0], 0, object_point[2]);
+			} 
+			if(object_point[1] < low || object_point[1] > high)
+			{
+				is_intersect = FALSE;
+			}
+		} else {
+			is_intersect = FALSE;
+		}
+	}
+	if(is_intersect == TRUE)
+	{
+		transform_matrix.multVecMatrix(object_point, point_intersect);
+		inverse_matrix.transpose().multDirMatrix(object_inter_normal, inter_normal);
+		inter_normal.normalize(); 
+		distance_length = (eye - point_intersect).length(); 
+	}
+	else
+		distance_length = FAR;
+	return distance_length;
+}
+
+
+
+
+
+
+
+
