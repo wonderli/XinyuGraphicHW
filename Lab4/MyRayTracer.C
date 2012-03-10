@@ -215,22 +215,18 @@ void MyRayTracer::rt(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMatrix
 
 		}//end of sphere intersect  
 		else if(shape_type == SoCube::getClassTypeId()) 
-		//if(shape_type == SoCube::getClassTypeId()) 
 		{
 			SoCube *cube = (SoCube*)(object->shape);
 			distance_length = this->cube_intersect(ray, eye, cube, transform_list[i], point_on_object, intersect_normal);
-			//cout<<"DISTANCE LENGTH"<<distance_length<<endl;
 			*point_intersect = point_on_object; 
 			//intersect_normal.normalize();
 
 		}//end of cube intersect
 
 		else if(shape_type == SoCylinder::getClassTypeId()) 
-		//if(shape_type == SoCylinder::getClassTypeId()) 
 		{
 			SoCylinder *cylinder = (SoCylinder*)(object->shape);
 			distance_length = this->quadric_intersect(ray, eye, cylinder, transform_list[i], point_on_object, intersect_normal);
-			//cout<<"DISTANCE LENGTH"<<distance_length<<endl;
 			*point_intersect = point_on_object; 
 			//intersect_normal.normalize();
 
@@ -251,13 +247,6 @@ void MyRayTracer::rt(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMatrix
 	}
 	if(distance_length_min < FAR)
 	{
-		//normal = point_on_sphere - center_min;
-		//normal.normalize();
-		//                        if(ray_location == RAY_INSIDE)
-		//                        {
-		//                                normal.negate();
-		//                        }
-
 		float t1 = ZERO;
 		float t2;
 		SbVec3f u;
@@ -318,15 +307,6 @@ void MyRayTracer::rt(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMatrix
 					}
 					light_intensity = light_intensity * hits/(light_area * light_area);
 				}
-				//                                        light_vector = light_location - point_on_object;
-				//                                        t2 = light_vector.length();
-				//                                        light_vector.normalize();
-				//
-				//                                        light_transparency_factor = this->object_in_path(point_on_object, light_vector, light_location, transform_list, scene, t1, t2);
-				//                                        light_intensity *= light_transparency_factor;
-
-
-
 
 
 				float N_dot_L = normal.dot(light_vector);
@@ -630,6 +610,18 @@ int MyRayTracer::refract(SbVec3f d, SbVec3f n, float Eta, SbVec3f *t)
 }
 
 
+/* 
+ * Name: cube_intersect
+ * Argument: 
+ *          ray: ray vector shooting from eye to the center of each pixel
+ *          eye: eye position
+ *          cube: cube need to be tested
+ *          point_intersect: the intersection point coordinate.
+ * Return value: the distance between camera and intersect point
+ * Usage:
+ *       Check the ray and cube whether have intersection or not, if have, store the intersection point.
+ */
+
 
 
 
@@ -872,6 +864,16 @@ void MyRayTracer::coordinate_gen(SbVec3f light_vector, SbVec3f &u, SbVec3f &v, S
 	v.normalize();
 
 }
+/* 
+ * Name: checkerboard 
+ * Argument: 
+ * 			x, y, z, the cooradinate of point
+ * 			size, the size of checker board per tile
+ * 			color0, color1, color2, the color generated
+ * Return value: void 
+ * Usage:
+ * 			Draw the checker borad.
+ */
 
 void MyRayTracer::checker_board(float x, float y, float z, float size, float *color0, float *color1, float *color2)
 {
@@ -891,6 +893,17 @@ void MyRayTracer::checker_board(float x, float y, float z, float size, float *co
 		*color2 = 0.8;
 	}
 }
+/* 
+ * Name: rings 
+ * Argument: 
+ * 			x, y, z, the cooradinate of point
+ * 			size, the size of checker board per tile
+ * 			color0, color1, color2, the color generated
+ * Return value: void 
+ * Usage:
+ * 			Draw the ring texture.
+ */
+
 void MyRayTracer::rings(float x, float y, float z, float size, float *color0, float *color1, float *color2)
 {
 	float m = 0.2;
@@ -909,6 +922,16 @@ void MyRayTracer::rings(float x, float y, float z, float size, float *color0, fl
 	}
 
 }
+/* 
+ * Name: wood_grain 
+ * Argument: 
+ * 			x, y, z, the cooradinate of point
+ * 			size, the size of checker board per tile
+ * 			color0, color1, color2, the color generated
+ * Return value: void 
+ * Usage:
+ * 			Draw the wood grain texture.
+ */
 
 void MyRayTracer::wood_grain(float x, float y, float z, float size, float *color0, float *color1, float *color2)
 {
@@ -937,9 +960,17 @@ void MyRayTracer::wood_grain(float x, float y, float z, float size, float *color
 	tmp.getValue(*color0, *color1, *color2);
 }
 
-
-
-
+/* 
+ * Name: quadric_intersect
+ * Argument: 
+ *          ray: ray vector shooting from eye to the center of each pixel
+ *          eye: eye position
+ *          cylinder: cylinder need to be tested
+ *          point_intersect: the intersection point coordinate.
+ * Return value: the distance between camera and intersect point
+ * Usage:
+ *       Check the ray and cylinder whether have intersection or not, if have, store the intersection point.
+ */
 
 
 float MyRayTracer::quadric_intersect(SbVec3f ray, SbVec3f eye, SoCylinder *cylinder, SbMatrix transform_matrix, SbVec3f &point_intersect, SbVec3f &inter_normal) {
