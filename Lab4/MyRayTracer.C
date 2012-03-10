@@ -994,7 +994,6 @@ float MyRayTracer::quadric_intersect(SbVec3f ray, SbVec3f eye, SoCylinder *cylin
 	float min = 10000;
 
 
-
 	discriminant = b * b - 4 * a * c;
 	if(discriminant > ZERO) {
 		root_1 = (-b - sqrt(discriminant))/(2*a);
@@ -1011,6 +1010,7 @@ float MyRayTracer::quadric_intersect(SbVec3f ray, SbVec3f eye, SoCylinder *cylin
 				{
 					if(denominator > ZERO)
 					{
+						cout<<"INSIDE root1 denominator"<<endl;
 						root_3 = (A_plane * x1 + B_plane * y1 + C_plane * z1 + D_plane_low)/denominator;
 						root_4 = (A_plane * x1 + B_plane * y1 + C_plane * z1 + D_plane_high)/denominator;
 						if(root < min)
@@ -1030,19 +1030,31 @@ float MyRayTracer::quadric_intersect(SbVec3f ray, SbVec3f eye, SoCylinder *cylin
 								object_point = object_eye + object_ray * root;
 								object_inter_normal.setValue(object_point[0], 0, object_point[2]);
 								is_intersect = TRUE;
-						}
+						}	
 						else if(min == root_3)
 						{
 								object_point = object_eye + object_ray * root_3;
-								object_inter_normal.setValue(0, -1, 0);
-								is_intersect = TRUE;
-						}
+								if((object_point[0]*object_point[0] + object_point[2]*object_point[2]) < (-J))
+								{
+									is_intersect = TRUE;
+									object_inter_normal.setValue(0, -1, 0);
+								}
+								else
+									is_intersect = FALSE;
+						}		
 						else if(min == root_4)
 						{
 								object_point = object_eye + object_ray * root_4;
-								object_inter_normal.setValue(0, 1, 0);
-								is_intersect = TRUE;
+								if((object_point[0]*object_point[0] + object_point[2]*object_point[2]) < (-J))
+								{
+									is_intersect = TRUE;
+									object_inter_normal.setValue(0, -1, 0);
+								}
+								else
+									is_intersect = FALSE;
 						}
+
+
 					}
 					else
 					{
@@ -1063,6 +1075,7 @@ float MyRayTracer::quadric_intersect(SbVec3f ray, SbVec3f eye, SoCylinder *cylin
 					is_intersect = TRUE;
 					if(denominator > ZERO)
 					{
+						cout<<"INSIDE root2 denominator"<<endl;
 						root_3 = (A_plane * x1 + B_plane * y1 + C_plane * z1 + D_plane_low)/denominator;
 						root_4 = (A_plane * x1 + B_plane * y1 + C_plane * z1 + D_plane_high)/denominator;
 						if(root < min)
@@ -1086,14 +1099,24 @@ float MyRayTracer::quadric_intersect(SbVec3f ray, SbVec3f eye, SoCylinder *cylin
 						else if(min == root_3)
 						{
 								object_point = object_eye + object_ray * root_3;
-								object_inter_normal.setValue(0, -1, 0);
-								is_intersect = TRUE;
+								if((object_point[0]*object_point[0] + object_point[2]*object_point[2]) < (-J))
+								{
+									is_intersect = TRUE;
+									object_inter_normal.setValue(0, -1, 0);
+								}
+								else
+									is_intersect = FALSE;
 						}		
 						else if(min == root_4)
 						{
 								object_point = object_eye + object_ray * root_4;
-								object_inter_normal.setValue(0, 1, 0);
-								is_intersect = TRUE;
+								if((object_point[0]*object_point[0] + object_point[2]*object_point[2]) < (-J))
+								{
+									is_intersect = TRUE;
+									object_inter_normal.setValue(0, -1, 0);
+								}
+								else
+									is_intersect = FALSE;
 						}
 					}
 					else
