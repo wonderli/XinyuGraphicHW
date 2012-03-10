@@ -15,7 +15,7 @@ Separator {
     on TRUE
     intensity .4
     color 1 1 1
-    location 0 10 10
+    location 8 15 12
   }
 }
 
@@ -29,10 +29,11 @@ Separator {
     }
 
     Material {
-      diffuseColor .0 .0 .3
+      diffuseColor 1 1 1
       specularColor 1 1 1
       shininess .7
-      ambientColor 0.2 0.2 0.2
+      #ambientColor 0.2 0.2 0.2
+      ambientColor .2 0.2 0.2
     }
     Cube{} 
  }
@@ -122,10 +123,11 @@ Separator {
 
     }
     Material {
-      diffuseColor .5 .5 .5
-      specularColor 1 0 0
-      shininess 0.5
-      ambientColor 0.2 0 0
+      diffuseColor .3 .4 .8
+      #specularColor 1 0 0
+      #shininess 0.5
+	  transparency 0.7
+      ambientColor 0 0 0
     }
     Cube {}
   }
