@@ -9,6 +9,7 @@ How to run this program:
 I've implemented solid texture which is checkerboard, wood grain.
 I've add a new cylinder object to the program, there two cylinder with golden color and several red spheres on there.
 In my li.iv scene, I put two cylinder, one cube and 7 spheres on it.
+On the bottom box, the texture is checkerboard, on the sphere the texture is wood grain.
 		
 
 
