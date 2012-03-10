@@ -474,7 +474,7 @@ void MyRayTracer::rt(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMatrix
 		color1 *= check_board_texture1;
 		color2 *= check_board_texture2;
 
-		//Solid texture, ring
+		//Solid texture, ring, wood grain
 		SbVec3f sphere_texture_point(0, 0, 0);
 		float ring_texture0 = 1;
 		float ring_texture1 = 1;
@@ -491,6 +491,10 @@ void MyRayTracer::rt(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMatrix
 		color0 *= ring_texture0;
 		color1 *= ring_texture1;
 		color2 *= ring_texture2;
+
+		SbVec3f perlin_noise(0, 0, 0);
+		SbVec3f perlin_noise_point(0,0,0);
+		
 
 
 
@@ -1120,6 +1124,21 @@ float MyRayTracer::noise(float x, float y, float z) {
 					this->grad(this->p[BA+1], x-1, y, z-1)), // OF CUBE
 				this->lerp(u, this->grad(this->p[AB+1], x, y-1, z-1),
 					this->grad(this->p[BB+1], x-1, y-1, z-1))));
+}
+
+float MyRayTracer::turb(float scale, double x, double y, double z)
+{ 
+	float t = 0.0;
+	//int scale = 1;
+	
+	for (int k = 0; k <= scale; k++)
+	{
+		//t += 1.0/pow(2,(k+1))*noise(pow(2.0,k)*s, x, y, z);
+		t += fabs(this->noise(x/scale, y/scale, z/scale)*scale);
+		scale /= 0.2;
+	}
+	
+	return t;
 }
 
 

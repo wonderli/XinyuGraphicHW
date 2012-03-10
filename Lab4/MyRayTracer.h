@@ -68,4 +68,6 @@ class MyRayTracer{
 	float lerp(float t, float a, float b);
 	float grad(int hash, float x, float y, float z);
 	float noise(float x, float y, float z);
+	
+	float turb(float scale, double x, double y, double z);
 };
