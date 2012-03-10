@@ -211,7 +211,7 @@ void MyRayTracer::rt(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMatrix
 			SoSphere *sphere = (SoSphere*)(object->shape);
 			distance_length = this->sphere_intersect(ray, eye, sphere, transform_list[i], point_on_object, intersect_normal);
 			*point_intersect = point_on_object; 
-			intersect_normal.normalize();
+			//intersect_normal.normalize();
 
 		}//end of sphere intersect  
 		else if(shape_type == SoCube::getClassTypeId()) 
@@ -221,7 +221,7 @@ void MyRayTracer::rt(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMatrix
 			distance_length = this->cube_intersect(ray, eye, cube, transform_list[i], point_on_object, intersect_normal);
 			//cout<<"DISTANCE LENGTH"<<distance_length<<endl;
 			*point_intersect = point_on_object; 
-			intersect_normal.normalize();
+			//intersect_normal.normalize();
 
 		}//end of cube intersect
 
@@ -232,7 +232,7 @@ void MyRayTracer::rt(SbVec3f ray, SbVec3f eye, OSUInventorScene *scene, SbMatrix
 			distance_length = this->quadric_intersect(ray, eye, cylinder, transform_list[i], point_on_object, intersect_normal);
 			//cout<<"DISTANCE LENGTH"<<distance_length<<endl;
 			*point_intersect = point_on_object; 
-			intersect_normal.normalize();
+			//intersect_normal.normalize();
 
 		}//end of cylinder intersect
 
