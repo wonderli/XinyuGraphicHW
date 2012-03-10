@@ -15,8 +15,8 @@ depthfield=$5
 #./rt cubesphere4.iv cubesphere4.ppm $size $size $shadow $reflection $refraction $depthfield
 #./rt cubesphere5.iv cubesphere5.ppm $size $size $shadow $reflection $refraction $depthfield
 #./rt sphereCycloid.iv sphereCycloid.ppm $size $size $shadow $reflection $refraction $depthfield
-./rt cylinder.iv cylinder.ppm $size $size $shadow $reflection $refraction $depthfield
-#./rt li.iv li.ppm $size $size $shadow $reflection $refraction $depthfield
+#./rt cylinder.iv cylinder.ppm $size $size $shadow $reflection $refraction $depthfield
+./rt li.iv li.ppm $size $size $shadow $reflection $refraction $depthfield
 
 #./rt cube1.iv cube1.ppm 500 500 $shadow $reflection $refraction
 #./rt cubesphere.iv cubesphere.ppm 500 500 1 0 $shadow $reflection $refraction
