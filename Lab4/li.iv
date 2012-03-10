@@ -15,7 +15,7 @@ Separator {
     on TRUE
     intensity .4
     color 1 1 1
-    location 0 4 10
+    location 0 10 10
   }
 }
 
@@ -114,4 +114,19 @@ Separator {
   }
  
   
+Separator {
+    Transform {
+      translation 3 0 0
+	  rotation 1 1 1 0.5
+
+
+    }
+    Material {
+      diffuseColor .5 .5 .5
+      specularColor 1 0 0
+      shininess 0.5
+      ambientColor 0.2 0 0
+    }
+    Cube {}
+  }
 
