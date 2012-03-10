@@ -934,6 +934,10 @@ float MyRayTracer::quadric_intersect(SbVec3f ray, SbVec3f eye, SoCylinder *cylin
 	float root;
 	float distance_length = FAR;
 	int is_intersect = FALSE;
+	//int is_intersect0 = FALSE;
+	//int is_intersect1 = FALSE;
+	//int is_intersect2 = FALSE;
+
 	float A, B, C, D, E, F, G, H, I, J;
 
 
@@ -962,14 +966,32 @@ float MyRayTracer::quadric_intersect(SbVec3f ray, SbVec3f eye, SoCylinder *cylin
 	float yr = object_eye[1];
 	float zr = object_eye[2];
 //	A = 100, B = -25, C = 4, D = E = F = 0, G = -200, H = -100, I = -8, J = 104; 
-	A = 1, B = 0, C = 1, D = E = F = 0, G = 0, H = 0, I = 0 , J = -2; 
+	A = 1, B = 0, C = 1, D = E = F = 0, G = 0, H = 0, I = 0 , J = -1; 
 	
 	a = A * xd * xd + B * yd * yd + C * zd * zd + D * xd * yd + E * xd * zd + F * yd * zd;
 	b = 2 * A * xr * xd + 2 * B * yr * yd + 2 * C * zr * zd + D * (xr * yd + yr * xd) + E * xr * zd + F * (yr * zd + yd * zr) + G * xd + H * yd + I * zd;
 	c = A * xr * xr + B * yr * yr + C * zr * zr + D * xr * yr + E * xr * zr + F * yr * zr + G * xr + H * yr + I * zr + J;
 	
-	float low = 1;
-	float high = 3;
+	float low = 0;
+	float high = low + 2;
+
+	float A_plane = 0;
+	float B_plane = 1;
+	float C_plane = 0;
+	float D_plane_low = -low;
+	float D_plane_high = -high;
+	SbVec3f P2 = object_eye + object_ray;
+	float x2 = P2[0];
+	float y2 = P2[1];
+	float z2 = P2[2];
+	float x1 = object_eye[0];
+	float y1 = object_eye[1];
+	float z1 = object_eye[2];
+	float denominator = 0;
+	denominator = A_plane * (x1 - x2) + B_plane * (y1 - y2) + C_plane * (z1 - z2);
+	float root_3 = 0;
+	float root_4 = 0;
+	float min = 10000;
 
 
 
@@ -980,26 +1002,202 @@ float MyRayTracer::quadric_intersect(SbVec3f ray, SbVec3f eye, SoCylinder *cylin
 		if((root_1 > ZERO) && (root_2 > ZERO)) {
 			if (root_1 < root_2) {
 				root = root_1;
-				is_intersect = TRUE;
-				object_point = object_eye + object_ray * root;
-				//object_inter_normal =object_point;
-				object_inter_normal.setValue(object_point[0], 0, object_point[2]);
+				//object_point = object_eye + object_ray * root;
+				if(object_point[1] < low || object_point[1] > high)
+				{
+					is_intersect = FALSE;
+				}
+				else
+				{
+					if(denominator > ZERO)
+					{
+						root_3 = (A_plane * x1 + B_plane * y1 + C_plane * z1 + D_plane_low)/denominator;
+						root_4 = (A_plane * x1 + B_plane * y1 + C_plane * z1 + D_plane_high)/denominator;
+						if(root < min)
+						{
+							min = root;
+						}
+						if(root_3 < min)
+						{
+							min = root_3;
+						}
+						if(root_4 < min)
+						{
+							min = root_4;
+						}
+						if(min == root)
+						{
+								object_point = object_eye + object_ray * root;
+								object_inter_normal.setValue(object_point[0], 0, object_point[2]);
+								is_intersect = TRUE;
+						}
+						else if(min == root_3)
+						{
+								object_point = object_eye + object_ray * root_3;
+								object_inter_normal.setValue(0, -1, 0);
+								is_intersect = TRUE;
+						}
+						else if(min == root_4)
+						{
+								object_point = object_eye + object_ray * root_4;
+								object_inter_normal.setValue(0, 1, 0);
+								is_intersect = TRUE;
+						}
+					}
+					else
+					{
+						object_point = object_eye + object_ray * root;
+						object_inter_normal.setValue(object_point[0], 0, object_point[2]);
+					}
+				}
 				
 			} else {
 				root = root_2;
-				is_intersect = TRUE;
-				object_point = object_eye + object_ray * root;
-				//object_inter_normal = object_point;
-				object_inter_normal.setValue(object_point[0], 0, object_point[2]);
+				//object_point = object_eye + object_ray * root;
+				if(object_point[1] < low || object_point[1] > high)
+				{
+					is_intersect = FALSE;
+				}
+				else
+				{
+					is_intersect = TRUE;
+					if(denominator > ZERO)
+					{
+						root_3 = (A_plane * x1 + B_plane * y1 + C_plane * z1 + D_plane_low)/denominator;
+						root_4 = (A_plane * x1 + B_plane * y1 + C_plane * z1 + D_plane_high)/denominator;
+						if(root < min)
+						{
+							min = root;
+						}
+						if(root_3 < min)
+						{
+							min = root_3;
+						}
+						if(root_4 < min)
+						{
+							min = root_4;
+						}
+						if(min == root)
+						{
+								object_point = object_eye + object_ray * root;
+								object_inter_normal.setValue(object_point[0], 0, object_point[2]);
+								is_intersect = TRUE;
+						}
+						else if(min == root_3)
+						{
+								object_point = object_eye + object_ray * root_3;
+								object_inter_normal.setValue(0, -1, 0);
+								is_intersect = TRUE;
+						}		
+						else if(min == root_4)
+						{
+								object_point = object_eye + object_ray * root_4;
+								object_inter_normal.setValue(0, 1, 0);
+								is_intersect = TRUE;
+						}
+					}
+					else
+					{
+						object_point = object_eye + object_ray * root;
+						object_inter_normal.setValue(object_point[0], 0, object_point[2]);
+					}
+				}
 			} 
-			if(object_point[1] < low || object_point[1] > high)
-			{
-				is_intersect = FALSE;
-			}
-		} else {
+		} 
+		else {
 			is_intersect = FALSE;
 		}
 	}
+
+//	if(denominator > ZERO)
+//	{
+//		root = (A_plane * x1 + B_plane * y1 + C_plane * z1 + D_plane)/denominator;
+//		object_point = object_eye + object_ray * root;
+//		if((object_point[0]*object_point[0] + object_point[2]*object_point[2]) < (-J))
+//		{
+//			is_intersect1 = TRUE;
+//			object_inter_normal.setValue(0, -1, 0);
+//
+//		}
+//		else
+//			is_intersect1 = FALSE;
+//	}
+//
+//	D_plane = -high;
+//	denominator = A_plane * (x1 - x2) + B_plane * (y1 - y2) + C_plane * (z1 - z2);
+//	if(denominator > ZERO)
+//	{
+//		root = (A_plane * x1 + B_plane * y1 + C_plane * z1 + D_plane)/denominator;
+//		object_point = object_eye + object_ray * root;
+//		if((object_point[0]*object_point[0] + object_point[2]*object_point[2]) < (-J))
+//		{
+//			is_intersect2 = TRUE;
+//			object_inter_normal.setValue(0, 1, 0);
+//		}
+//		else
+//			is_intersect2 = FALSE;
+//	}
+
+
+//	SbVec3f P2 = object_eye + object_ray;
+//	float x2 = P2[0];
+//	float y2 = P2[1];
+//	float z2 = P2[2];
+//	float x1 = object_eye[0];
+//	float y1 = object_eye[1];
+//	float z1 = object_eye[2];
+//	float x3 = 0;
+//	float y3 = 0;
+//	float z3 = 0;
+//	//float radius = sqrt(J);
+//
+//	y3 = low;
+//
+//	a = (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1) + (z2 - z1) * (z2 - z1);
+//	b = 2 * ((x2 - x1) * (x1 - x3) + (y2 - y1) * (y1 - y3) + (z2 - z1)*(z1 - z3));
+//	c = x3 * x3 + y3 * y3 + z3 * z3 + x1 * x1 + y1 * y1 + z1 * z1 - 2 * (x3 * x1 + y3 * y1 + z3 * z1) + J;
+//
+//	discriminant = b * b - 4 * a * c;
+//	if(discriminant < ZERO && discriminant > (-1) * ZERO)
+//	//if(discriminant == 0)
+//	//if(discriminant < ZERO && discriminant > 0)
+//	{
+//		root = (-1) * b /(2 * a);
+//		is_intersect1 = TRUE;
+//		object_point = object_eye + object_ray * root;
+//		object_inter_normal.setValue(0, -1, 0);
+//		//cout<<"LOW!!!"<<endl;
+//	}
+//	else
+//	{
+//		is_intersect1 = FALSE;
+//	}
+//	
+//	y3 = high;
+//	a = (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1) + (z2 - z1) * (z2 - z1);
+//	b = 2 * ((x2 - x1) * (x1 - x3) + (y2 - y1) * (y1 - y3) + (z2 - z1)*(z1 - z3));
+//	c = x3 * x3 + y3 * y3 + z3 * z3 + x1 * x1 + y1 * y1 + z1 * z1 - 2 * (x3 * x1 + y3 * y1 + z3 * z1) + J;
+//
+//
+//	discriminant = b * b - 4 * a * c;
+//	if(discriminant < ZERO && discriminant > (-1) * ZERO)
+//	//if(discriminant < ZERO && discriminant > 0)
+//	//if(discriminant >= 0)
+//	{
+//		root = (-1) * b /(2 * a);
+//		is_intersect2 = TRUE;
+//		object_point = object_eye + object_ray * root;
+//		object_inter_normal.setValue(0, 1, 0);
+//		//cout<<"HIGH!!!"<<endl;
+//	}
+//	else 
+//	{
+//		is_intersect2 = FALSE;
+//	}
+//
+
+
+	//if(is_intersect0 == TRUE || is_intersect1 == TRUE || is_intersect2 == TRUE)
 	if(is_intersect == TRUE)
 	{
 		transform_matrix.multVecMatrix(object_point, point_intersect);
