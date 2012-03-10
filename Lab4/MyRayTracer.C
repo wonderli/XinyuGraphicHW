@@ -962,14 +962,14 @@ float MyRayTracer::quadric_intersect(SbVec3f ray, SbVec3f eye, SoCylinder *cylin
 	float yr = object_eye[1];
 	float zr = object_eye[2];
 //	A = 100, B = -25, C = 4, D = E = F = 0, G = -200, H = -100, I = -8, J = 104; 
-	A = 1, B = 0, C = 1, D = E = F = 0, G = 0, H = 0, I = 0 , J = -1; 
+	A = 1, B = 0, C = 1, D = E = F = 0, G = 0, H = 0, I = 0 , J = -0.1;//J = -1; 
 	
 	a = A * xd * xd + B * yd * yd + C * zd * zd + D * xd * yd + E * xd * zd + F * yd * zd;
 	b = 2 * A * xr * xd + 2 * B * yr * yd + 2 * C * zr * zd + D * (xr * yd + yr * xd) + E * xr * zd + F * (yr * zd + yd * zr) + G * xd + H * yd + I * zd;
 	c = A * xr * xr + B * yr * yr + C * zr * zr + D * xr * yr + E * xr * zr + F * yr * zr + G * xr + H * yr + I * zr + J;
 	
 	float low = 0;
-	float high = low + 10;
+	float high = low + 11;
 
 	SbVec3f P0 = object_eye;
 	SbVec3f P1_low(0, low, 0);
