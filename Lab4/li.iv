@@ -131,4 +131,31 @@ Separator {
     }
     Cube {}
   }
+Separator {
+    Transform {
+      translation -5 -2 0
+      rotation 1 1 1 0
+      scaleFactor 1 1 1
+    }
+    Material {
+      diffuseColor .3 .3 0
+      specularColor 1 1 1
+      shininess 0.5
+      ambientColor 0.2 0.2 0.2
+    }
+    Cylinder{} 
+ }
+ Separator {
+    Transform {
+      translation -5 2 0
+
+    }
+    Material {
+      diffuseColor .3 0 0
+      specularColor 1 0 0
+      shininess 0.5
+      ambientColor 0.2 0 0
+    }
+    Sphere {}
+  }
 

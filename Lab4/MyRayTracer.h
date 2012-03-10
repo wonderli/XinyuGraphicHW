@@ -46,8 +46,8 @@ class MyRayTracer{
         SbVec3f light_location;
         SbVec3f light_vector;
         SbVec3f light_direction;
-
-
+		int p[512];
+		
 
         MyRayTracer(OSUInventorScene *scene);
 		float sphere_intersect(SbVec3f ray, SbVec3f eye, SoSphere *sphere, SbMatrix transform_matrix, SbVec3f &point_intersect, SbVec3f &inter_normal);
@@ -64,4 +64,8 @@ class MyRayTracer{
 	void rings(float x, float y, float z, float size, float *color0, float *color1, float *color2);
 	void wood_grain(float x, float y, float z, float size, float *color0, float *color1, float *color2);
 	float quadric_intersect(SbVec3f ray, SbVec3f eye, SoCylinder *cylinder, SbMatrix transform_matrix, SbVec3f &point_intersect, SbVec3f &inter_normal);
+	float fade(float t);
+	float lerp(float t, float a, float b);
+	float grad(int hash, float x, float y, float z);
+	float noise(float x, float y, float z);
 };
