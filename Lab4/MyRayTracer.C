@@ -1002,7 +1002,7 @@ float MyRayTracer::quadric_intersect(SbVec3f ray, SbVec3f eye, SoCylinder *cylin
 		if((root_1 > ZERO) && (root_2 > ZERO)) {
 			if (root_1 < root_2) {
 				root = root_1;
-				//object_point = object_eye + object_ray * root;
+				object_point = object_eye + object_ray * root;
 				if(object_point[1] < low || object_point[1] > high)
 				{
 					is_intersect = FALSE;
@@ -1053,7 +1053,7 @@ float MyRayTracer::quadric_intersect(SbVec3f ray, SbVec3f eye, SoCylinder *cylin
 				
 			} else {
 				root = root_2;
-				//object_point = object_eye + object_ray * root;
+				object_point = object_eye + object_ray * root;
 				if(object_point[1] < low || object_point[1] > high)
 				{
 					is_intersect = FALSE;
