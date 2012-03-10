@@ -969,7 +969,17 @@ float MyRayTracer::quadric_intersect(SbVec3f ray, SbVec3f eye, SoCylinder *cylin
 	c = A * xr * xr + B * yr * yr + C * zr * zr + D * xr * yr + E * xr * zr + F * yr * zr + G * xr + H * yr + I * zr + J;
 	
 	float low = 0;
-	float high = low + 1;
+	float high = low + 3;
+
+	SbVec3f P0 = object_eye;
+	SbVec3f P1_low(0, low, 0);
+	SbVec3f P1_high(0, high, 0);
+	SbVec3f u = object_ray;
+	SbVec3f n_low(0, -1, 0);
+	SbVec3f n_high(0, 1, 0);
+	float t_low = 0;
+	float t_high = 0;
+	int hit_flag = 0;
 
 
 
@@ -980,35 +990,32 @@ float MyRayTracer::quadric_intersect(SbVec3f ray, SbVec3f eye, SoCylinder *cylin
 		if((root_1 > ZERO) && (root_2 > ZERO)) {
 			if (root_1 < root_2) {
 				root = root_1;
-				is_intersect = TRUE;
+				//is_intersect = TRUE;
+				//hit_flag++;
 				object_point = object_eye + object_ray * root;
 				//object_inter_normal =object_point;
 				object_inter_normal.setValue(object_point[0], 0, object_point[2]);
 				
 			} else {
 				root = root_2;
-				is_intersect = TRUE;
+				//is_intersect = TRUE;
+				//hit_flag++;
 				object_point = object_eye + object_ray * root;
 				//object_inter_normal = object_point;
 				object_inter_normal.setValue(object_point[0], 0, object_point[2]);
 			} 
-			if(object_point[1] < low || object_point[1] > high)
+			//if(object_point[1] < low || object_point[1] > high)
+			if(object_point[1] > low && object_point[1] < high)
 			{
-				is_intersect = FALSE;
+				hit_flag++;
+				//is_intersect = FALSE;
 			}
-		} else {
-			is_intersect = FALSE;
-		}
+		} //else {
+			//is_intersect = FALSE;
+		//}
 	}
-	SbVec3f P0 = object_eye;
-	SbVec3f P1_low(0, low, 0);
-	SbVec3f P1_high(0, high, 0);
-	SbVec3f u = object_ray;
-	SbVec3f n_low(0, -1, 0);
-	SbVec3f n_high(0, 1, 0);
-	float t_low = 0;
-	float t_high = 0;
-	//if((n_low.dot(u) < ZERO) && (n_low.dot(u) > -ZERO ))
+
+		//if((n_low.dot(u) < ZERO) && (n_low.dot(u) > -ZERO ))
 	if((n_low.dot(u) > ZERO) || (n_low.dot(u) < -ZERO ))
 	{
 		t_low = (n_low.dot(P1_low) - n_low.dot(P0))/n_low.dot(u);
@@ -1016,16 +1023,17 @@ float MyRayTracer::quadric_intersect(SbVec3f ray, SbVec3f eye, SoCylinder *cylin
 		{
 			object_point = object_eye + object_ray * t_low;
 			//object_inter_normal.setValue(object_point[0], -1, object_point[2]);
-			if(object_point[0] * object_point[0] + object_point[2] * object_point[2] < (-J) )
+			if((object_point[0] * object_point[0] + object_point[2] * object_point[2]) < (-J) )
 			{
-				object_inter_normal.setValue(0, -1, 0);
-				is_intersect = TRUE;
+				object_inter_normal.setValue(0, 1, 0);
+				hit_flag++;
+				//is_intersect = TRUE;
 			}
-			else
-				is_intersect = FALSE;
+			//else
+				//is_intersect = FALSE;
 		}
-		else 
-			is_intersect = FALSE;
+		//else 
+			//is_intersect = FALSE;
 	}
 	//if((n_high.dot(u) < ZERO) && (n_high.dot(u) > -ZERO ))
 	if((n_high.dot(u) > ZERO) || (n_high.dot(u) < -ZERO ))
@@ -1035,17 +1043,24 @@ float MyRayTracer::quadric_intersect(SbVec3f ray, SbVec3f eye, SoCylinder *cylin
 		{
 			object_point = object_eye + object_ray * t_high;
 			//object_inter_normal.setValue(object_point[0], 1, object_point[2]);
-			if(object_point[0] * object_point[0] + object_point[2] * object_point[2] < (-J) )
+			if((object_point[0] * object_point[0] + object_point[2] * object_point[2] )< (-J) )
 			{
-				object_inter_normal.setValue(0, 1, 0);
-				is_intersect = TRUE;
+				object_inter_normal.setValue(0, -1, 0);
+				//is_intersect = TRUE;
+				hit_flag++;
 			}
-			else
-				is_intersect = FALSE;
+			//else
+			//	is_intersect = FALSE;
 		}
-		else
-			is_intersect = FALSE;
+		//else
+		//	is_intersect = FALSE;
 	}
+	if(hit_flag > 0)
+	{
+		is_intersect = TRUE;
+	}
+	else
+		is_intersect = FALSE;
 
 
 
